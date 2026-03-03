@@ -1,0 +1,1039 @@
+=== CHUNK 6000-9000 ===
+es
+Apply hard elimination filters — any strategy failing any hard limit is immediately disqualified
+Score all surviving strategies using the Monte Carlo drawdown matrix classifications and EV framework
+Rank survivors and select the top 3 — ensuring the 3 selected strategies are not highly correlated with each other
+Produce a detailed evaluation report explaining the top 3 selections and key eliminations
+Pass all 3 winning strategies and their full scorecards to the Trader for concurrent deployment
+
+Backtesting Methodology
+Data Requirements
+Lookback Period
+Minimum 2 years of historical OHLCV data
+Data Source
+Yahoo Finance (free) or Alpha Vantage — daily and intraday bars
+Market Conditions
+Test must include at least one bull, one bear, and one sideways period
+Out-of-Sample Test
+Final 20% of data reserved as unseen test set — no optimization allowed on it
+Slippage Model
+0.1% slippage applied per trade to simulate real execution
+Commission Model
+Fixed $1 per trade or 0.05% — whichever is higher
+
+Hard Elimination Filters
+Any strategy failing ANY of these criteria is immediately disqualified, regardless of other metrics:
+Maximum drawdown exceeds 20% of starting capital
+Win rate below 35% (statistically insufficient edge)
+Fewer than 30 trades in backtest period (insufficient sample size)
+Any single trade loss exceeds 5% of account equity — this applies regardless of what risk per trade level was selected
+Consecutive losing streak exceeds 8 trades
+Sharpe Ratio below 0.5
+Strategy only performs well at the 2% risk level — if it requires maximum risk to look profitable, it is disqualified
+
+Expected Value Calculation
+Before a strategy can be scored, it must demonstrate a positive Expected Value (EV). EV is the mathematical edge of a strategy — the average outcome per trade expressed as a percentage of the amount risked. A strategy with negative EV is a losing strategy regardless of how it looks on any other metric.
+EV Formula
+EV = (Win Rate × Reward) - (Loss Rate × Risk) — expressed as % of risk per trade
+Example: 45% WR at 2R
+EV = (0.45 × 2) - (0.55 × 1) = +0.35R per trade, or +35% of risk
+Break-even Win Rate
+The minimum win rate needed at a given R:R = 1 / (1 + R:R). At 2R this is 33.3%, at 1R this is 50%
+Profit Factor
+Gross profit divided by gross loss. Must exceed 1.5 to pass. Calculated as: (WR × R:R) / (1 - WR)
+EV Disqualification
+Any strategy with EV ≤ 0 is immediately disqualified — no further scoring occurs
+
+Win Rate Reality Check
+Not all win rates are equal. The Backtester applies a reality check to understand what each win rate actually requires:
+30% Win Rate
+Requires minimum 2.33R to break even. Viable as a sniper strategy but needs very high R:R. Max drawdown at 2R is typically high.
+40% Win Rate
+Requires 1.5R minimum. Achievable but demands disciplined R:R management. Preferred floor for this system.
+45% Win Rate
+Solid edge with 2R+. This is the target baseline for strategies entering scoring.
+50% Win Rate
+Coin flip baseline — needs any positiv
+
+=== CHUNK 9000-12000 ===
+e R:R to be profitable. Breaks even at 1:1.
+55%+ Win Rate
+Above average. Verify sample size is sufficient — high win rates on small samples are statistically suspect.
+60%+ Win Rate
+Requires validation — abnormally high win rates on backtests often indicate curve-fitting to historical data.
+
+Monte Carlo Drawdown Analysis
+Rather than relying on a single backtest path, the Backtester runs 800 Monte Carlo simulations for each strategy to understand the full range of possible drawdown outcomes. This reveals the statistical worst case, not just the historical one.
+Simulation Count
+800 independent simulations per strategy — sufficient for stable 95th percentile estimates
+95th Percentile DD
+The drawdown that would be exceeded only 5% of the time — used as the risk benchmark, not the average
+Trade Sample
+Simulations run over 100 trades minimum — matches typical monthly exposure
+Risk Levels Tested
+Each strategy is simulated at its chosen risk per trade (0.5% to 2%)
+Max Consecutive Losses
+Estimated as: log((1 - Loss Rate) × N) / log(1 / Loss Rate) + 2 — the expected worst losing streak
+Recovery Requirement
+Calculated as: DD% / (100 - DD%) × 100 — how much gain is needed to recover from the drawdown
+
+Drawdown Risk Classification
+Each strategy receives a drawdown risk classification based on its 95th percentile Monte Carlo result:
+Low Risk (DD < 4%)
+Acceptable for all account types. Green light for deployment.
+Moderate Risk (4-7%)
+Manageable. Passes most prop firm rules. Proceed with monitoring.
+High Risk (7-12%)
+Approaches prop firm limits. Reduce position sizing or reconsider.
+Extreme Risk (DD > 12%)
+Disqualified. Recovery requirement becomes unreasonable and violates most prop firm rules.
+
+Prop Firm Safety Check
+Many traders operate under prop firm rules with defined maximum drawdown limits. The Backtester automatically checks each strategy against three standard prop firm thresholds:
+5% DD Rule
+Strictest — many evaluation accounts use this. Strategy must show 95th pct DD below 5% to pass.
+8% DD Rule
+Standard prop firm maximum daily/weekly drawdown rule.
+10% DD Rule
+Most common overall account drawdown limit across prop firms.
+Result
+Strategies are flagged with which rule they breach first, or marked as passing all three. Only strategies passing the 8% rule or better are eligible for selection.
+
+Scoring Model
+Strategies surviving all hard filters and EV checks are scored across six weighted dimensions:
+Expected Value Score (25%)
+EV per trade as % of risk, weighted by profit factor — higher is better. Minimum EV of +20% of risk required to score.
+Drawdown Profile (25%)
+95th percentile Monte Carlo DD score — lower is better. Weighted by recovery requirement.
+Risk-Adjusted Return (20%)
+Sharpe Ratio and Sortino Ratio — rewards return per unit of volatility taken
+Consistency (15%)
+Monthly return variance and win rate stability across bull, bear, and sideways periods
+Profit Factor (10%)
+Gross profit divided by gross loss — minimum 1.5 required, higher scores bet
+
+=== CHUNK 12000-15000 ===
+ter
+Statistical Confidence (5%)
+Trade count relative to minimum sample size. More trades = more reliable edge estimate.
+
+Return Projection
+Each of the top 3 strategies receives a projected monthly return across 3, 6, 12, and 24 month horizons under three compounding scenarios — no compounding, monthly rebasing, and per-trade compounding. These projections are passed to the Trading Coach as individual performance benchmarks. If any strategy's live performance falls below 50% of its projected return over any monthly period, the Coach flags it for review and potential replacement.
+
+Matrix-Based Selection Logic
+After scoring, the top 3 strategies are selected using a two-stage process. First, the highest-scoring strategy is chosen. Second, the next highest-scoring strategy that is NOT highly correlated with the first is selected. Third, the next highest-scoring strategy that is NOT highly correlated with either of the first two is selected. This ensures the 3 deployed strategies complement each other rather than amplifying the same risk. If a top-ranked strategy is materially similar to one already deployed and underperforming, it is skipped and the next ranked strategy is considered. The prop firm safety matrix classification from the drawdown matrices is the final arbiter — all 3 selected strategies must sit in the green or yellow zone at their chosen risk level.
+
+Inputs Received
+100 candidate strategy JSON objects from the Strategy Builder
+Historical OHLCV market data for the relevant assets and timeframes
+Historical performance log of previously deployed strategies
+
+Outputs Produced
+Full scorecard for all 100 strategies with elimination reasons (passed to Trading Coach for reference)
+Top 3 winning strategy JSONs with complete performance metrics and matrix classifications
+Elimination report summarising the most common failure reasons across the 100 candidates
+Confidence rating for each of the 3 selected strategies (High / Medium / Low)
+Drawdown matrix classification for each selected strategy at its chosen risk level
+
+
+AGENT 3: TRADER
+Executes approved strategies in live or paper markets with precision
+
+Role & Purpose
+The Trader is the execution arm of the network. It receives the Backtester's top 3 selected strategies and runs all three concurrently in real or simulated markets. Each strategy operates independently with its own risk allocation, position tracking, and performance log. The Trader does not deviate from any strategy, does not make discretionary decisions, and does not override risk parameters. Its job is flawless parallel execution, complete per-strategy trade logging, and surfacing real-world performance data for the Trading Coach.
+
+Core Responsibilities
+Load all 3 approved strategies and their parameters before market open each day
+Run all 3 strategies concurrently — each monitored independently for entry triggers
+Manage open positions for each strategy according to its own stop loss, take profit, and trailing stop rules
+Track ris
+
+=== CHUNK 15000-18000 ===
+k budget separately per strategy — each strategy has its own daily loss limit
+Enforce total account risk limit across all 3 strategies combined — no single day can lose more than 5% across all active strategies
+Log every trade in full detail per strategy: entry time, exit time, price, size, P&L, reason for exit, which strategy triggered it
+Report daily and weekly performance summaries per strategy to the Trading Coach
+Flag anomalies — if market conditions change materially for any strategy, escalate to human review
+
+Risk Management Philosophy
+The Trader follows the risk management settings defined in each individual strategy — not a generic set of defaults. This is critical: the Backtester already optimized and validated those specific risk parameters. If the Trader overrides them, it is no longer executing the tested strategy. That would invalidate the backtest entirely.
+With 3 strategies running concurrently, total account exposure must be managed carefully. Each strategy's risk per trade is capped at its backtested level, and the combined daily loss limit across all 3 strategies is 5% — not 5% per strategy. Hard safety overrides are non-negotiable regardless of what any strategy instructs:
+Per-Strategy Risk Settings
+The Trader reads and follows each strategy's individual: risk per trade %, stop loss, take profit, trailing stop, max concurrent positions, and entry/exit timing
+Combined Exposure Limit
+Total open risk across all 3 strategies cannot exceed 6% of account equity at any time — prevents over-exposure when all 3 strategies enter simultaneously
+Hard Override: Daily Halt
+If total account equity drops 5% across all strategies in a single day, all trading halts — no exceptions
+Hard Override: Weekly Reduction
+If combined weekly drawdown reaches 8%, position sizes are cut by 50% across all strategies for the remainder of the week
+Hard Override: Single Trade Cap
+No single trade from any strategy may risk more than 2% of account equity — network-level rule, cannot be overridden
+Hard Override: Strategy Isolation
+If one strategy triggers a daily halt individually (3% single-strategy daily loss), that strategy pauses — the other two continue unaffected
+Hard Override: Regime Change
+If the Trading Coach flags a major market regime shift, the Trader pauses new entries across all strategies until cleared
+Hard Override: API Failure
+If broker connection is lost, all open positions across all strategies are closed if possible and all activity halts
+
+Pre-Trade Checklist
+Before executing any trade from any strategy, the Trader verifies all of the following:
+Strategy Loaded
+All parameters confirmed and loaded from Backtester output for this specific strategy
+Per-Strategy Risk Budget
+Confirm this strategy's individual daily loss limit has not been reached
+Combined Risk Budget
+Confirm total account exposure from all 3 strategies combined is within the 6% limit
+Position Limit Check
+Confirm open position count for this strategy is below its maximum
+Correlation 
+
+=== CHUNK 18000-21000 ===
+Check
+Confirm new trade is not highly correlated with any existing open position across all 3 strategies
+Market Hours
+Confirm market is open and liquidity is sufficient
+News Filter
+Avoid entry within 30 minutes of major economic announcements
+
+Trade Execution Rules
+Entry orders are limit orders by default — market orders only if price moves away within 5 seconds
+Stop loss is placed immediately upon entry — never a mental stop
+Take profit target is set immediately upon entry
+Position size is calculated precisely from each strategy's risk per trade parameter, never rounded up
+Each strategy's trades are tagged with a strategy ID in the log for clean per-strategy performance attribution
+Partial exits are permitted if a strategy defines scaling out rules
+
+Risk Management During Execution
+Combined Daily Hard Stop
+5% total account drop across all strategies in one day — halts all three immediately
+Per-Strategy Daily Pause
+3% single-strategy daily loss — pauses that strategy only, others continue
+Weekly Combined Limit
+8% combined weekly drawdown — reduces position sizes by 50% across all strategies for the week
+Strategy Invalidation
+If market regime shifts dramatically for one strategy's asset class, pause that strategy and flag for Coach review
+Broker API Failure
+Connection lost — close all positions across all strategies if possible, then halt
+
+Supported Broker Integration
+Alpaca Markets — paper and live trading via REST API (recommended for development)
+Interactive Brokers — via IBKR API for professional deployments
+Extensible to any broker with a REST or WebSocket API
+
+Inputs Received
+Top 3 strategy JSONs from the Backtester with full performance metrics and matrix classifications
+Real-time market data feed (price, volume, indicators) for all active strategy assets
+Per-strategy risk adjustment instructions from the Trading Coach
+
+Outputs Produced
+Complete per-strategy trade log with full entry/exit details for every trade
+Daily P&L summary broken down by strategy
+Weekly performance report per strategy delivered to the Trading Coach
+Combined account exposure report showing total risk across all 3 strategies
+Anomaly alerts per strategy for human review when conditions warrant
+
+
+AGENT 4: TRADING COACH
+Monitors performance, manages risk exposure, and drives continuous improvement
+
+Role & Purpose
+The Trading Coach is the strategic intelligence layer of the network. While the other agents execute a defined process, the Coach steps back and asks: is this working? It reviews performance across all active strategies on a weekly and monthly basis, identifies what is working and what is not, adjusts risk exposure dynamically, and feeds actionable insights back to the Strategy Builder to improve the next generation of strategies. It is the closest thing to a human fund manager in the system.
+
+Core Responsibilities
+Review weekly and monthly performance across all active trading strategies
+Identify the lowest-performing strategies and implement risk reduction meas
+
+=== CHUNK 21000-24000 ===
+ures
+Identify highest-performing strategies and recommend increased exposure where appropriate
+Produce a structured feedback report for the Strategy Builder each cycle
+Monitor for strategy decay — a previously good strategy losing its edge over time
+Maintain the performance history log used by all other agents
+Flag strategies for retirement when they no longer meet performance thresholds
+
+Performance Review Framework
+Weekly Review
+Every week the Trading Coach evaluates each active strategy across the following metrics:
+Weekly P&L
+Absolute and percentage return for the week
+Live Win Rate vs Expected
+Actual win rate this week vs the backtested win rate. Divergence of more than 10 percentage points triggers a review.
+Live EV vs Expected
+Actual EV per trade this week vs the projected EV from the Backtester. If live EV turns negative for the week, flag immediately.
+Average R-Multiple
+Average reward relative to risk per trade this week — is the strategy achieving its targeted R:R?
+Max Drawdown (Weekly)
+Largest peak-to-trough decline this week vs the 95th percentile Monte Carlo estimate
+Trade Count
+Actual trade frequency vs expected — divergence may signal market regime change
+Execution Quality
+Slippage analysis — are live results matching backtest expectations?
+
+Monthly Review
+Monthly reviews go deeper and drive the major strategic decisions:
+Monthly P&L vs Projection
+Total return for the month vs the Backtester's projected return benchmark. If below 50% of projection for 2 consecutive months, flag for retirement review.
+Live EV vs Backtested EV
+Compare actual monthly EV per trade against the backtested EV. A sustained gap signals edge decay or changed market conditions.
+Sharpe Ratio (Live)
+Compare live Sharpe to backtest Sharpe — significant gap signals strategy decay
+Monte Carlo Comparison
+Run updated Monte Carlo on live trade data. If 95th pct drawdown has worsened materially vs backtest estimate, reduce exposure.
+Drawdown Analysis
+Month's maximum drawdown vs 95th percentile Monte Carlo estimate and prop firm rule thresholds
+Strategy Ranking
+Rank all active strategies by risk-adjusted monthly EV — drives exposure adjustment decisions
+Win Rate Drift
+Is the win rate trending down over time? Consistent decline signals the strategy's edge is eroding.
+Regime Analysis
+Has market regime changed? Are strategies still appropriate for current conditions?
+
+Risk Exposure Adjustment Rules
+The Trading Coach applies the following rules to adjust exposure after each monthly review:
+Bottom 25% of strategies by monthly performance: reduce position sizing by 25%
+Any strategy with monthly drawdown exceeding 15%: reduce position sizing by 50%
+Any strategy with 3 consecutive losing weeks: flag for retirement review
+Top 25% of strategies by monthly performance: increase position sizing by up to 25% (never exceeding max position size limits)
+Exposure increases are gradual — never more than 25% increase per review cycle
+Retired strategies are logged with full post-mortem an
+
+=== CHUNK 24000-27000 ===
+alysis for Strategy Builder reference
+
+Feedback Report to Strategy Builder
+Each cycle the Trading Coach produces a structured feedback report containing:
+What indicator combinations have performed best in current market conditions
+What risk/reward ratios have produced the best actual outcomes
+What market regimes current strategies are failing in — focus area for new strategies
+Specific hypothesis for the next batch: e.g., 'test mean-reversion in low-volatility conditions'
+List of retired strategy patterns to avoid regenerating
+
+Inputs Received
+Weekly and daily trade logs from the Trader
+Full scorecard history from the Backtester for all previously evaluated strategies
+Current market regime data
+
+Outputs Produced
+Weekly performance dashboard (summary for human review)
+Monthly strategic review report with risk adjustment recommendations
+Structured feedback report delivered to Strategy Builder each cycle
+Retirement notices for underperforming strategies
+Risk adjustment instructions delivered to the Trader
+
+
+Strategy Health Scoring Framework
+This section defines the complete framework for classifying whether a trading strategy is good, marginal, or poor. It is used by both the Backtester (to select winning strategies) and the Trading Coach (to monitor live strategies and decide when to retire them). All metrics derive from the Expected Value, Monte Carlo Drawdown, and Return Projection logic built into the system.
+
+The Three Classification Tiers
+Tier
+Backtester Criteria
+Trading Coach Live Criteria
+GOOD
+EV > +35% of risk · Profit Factor > 1.8 · 95th pct DD < 7% · Sharpe > 1.0 · Win rate >= 40% · Passes 8% prop rule · Live EV >= 80% of projected
+Live EV >= 80% of backtested EV · Win rate within 10 pts of backtest · Monthly return >= 50% of projection · DD within Monte Carlo 95th pct · No consecutive losing weeks > 2
+MARGINAL
+EV between +15-35% · Profit Factor 1.5-1.8 · 95th pct DD 7-12% · Sharpe 0.5-1.0 · Passes 10% prop rule only · Eligible but not preferred
+Live EV 50-80% of backtested EV · Win rate drifted 10-15 pts below backtest · Monthly return 25-50% of projection · Exposure reduced 25% · Coach monitoring intensified
+POOR
+EV <= 0 or Profit Factor < 1.5 · 95th pct DD > 12% · Sharpe < 0.5 · Win rate < 35% · Fails prop firm rules · Requires 2% risk to look profitable
+Live EV negative for the month · Win rate drifted > 15 pts below backtest · Monthly return < 25% of projection · 3+ consecutive losing weeks · Flagged for retirement
+
+Expected Value Deep Dive
+EV is the single most important metric for classifying a strategy. A strategy can have a great win rate and still be a losing strategy if the R:R is wrong. Conversely, a strategy with a low win rate can be highly profitable with the right R:R. The table below shows the break-even win rate required at each R:R ratio:
+0.5R (1:0.5)
+Must win 66.7% of trades to break even. Almost never viable.
+1R (1:1)
+Must win 50% to break even. Viable but requires above-average win rate.
+1.5R (1:1.5)
+Must win 40% to 
+
+=== CHUNK 27000-30000 ===
+break even. Good baseline for trend-following strategies.
+2R (1:2)
+Must win 33.3% to break even. The preferred minimum R:R for this system.
+3R (1:3)
+Must win 25% to break even. Excellent R:R — allows low win rate sniper approaches.
+5R (1:5)
+Must win 16.7% to break even. High-conviction setups only.
+10R (1:10)
+Must win 9.1% to break even. Very rare entries, very high reward setups.
+
+Monte Carlo Drawdown Matrix — Visual Reference
+The following six matrices are generated by 800 Monte Carlo simulations (95th percentile) and represent the core visual reference for what a profitable vs unprofitable strategy looks like at different risk levels. Red = Extreme/High Risk, Orange = Elevated, Yellow = Moderate, Green = Acceptable. Use these to immediately classify any strategy's risk profile.
+
+MAX DRAWDOWN MATRIX — 0.25% Risk · 100 Trades (95th Percentile)
+At 0.25% risk per trade most strategies pass all prop firm rules. This is the safest starting point for new strategy validation.
+Win Rate
+0.5R
+1:1
+1.5R
+1:2
+1:3
+1:5
+1:10
+30%
+15.3%
+12.9%
+10.9%
+9.1%
+6.3%
+4.7%
+4.4%
+35%
+13.6%
+10.9%
+8.6%
+6.3%
+4.4%
+3.7%
+3.7%
+40%
+12.2%
+9.1%
+6.2%
+4.7%
+3.5%
+3.2%
+3.0%
+45%
+10.9%
+7.3%
+4.9%
+3.4%
+3.0%
+2.7%
+2.7%
+50%
+9.2%
+5.4%
+3.2%
+2.7%
+2.5%
+2.2%
+2.5%
+55%
+7.6%
+3.7%
+2.6%
+2.2%
+2.0%
+2.2%
+2.0%
+60%
+5.7%
+2.7%
+2.1%
+2.0%
+2.0%
+1.7%
+1.7%
+65%
+4.4%
+2.2%
+1.7%
+1.7%
+1.5%
+1.5%
+1.5%
+70%
+3.0%
+1.5%
+1.4%
+1.5%
+1.2%
+1.2%
+1.5%
+
+PROP FIRM SAFETY MATRIX — 0.25% Risk · 100 Trades
+At 0.25% risk, many combinations pass all prop firm rules — ideal for initial live deployment.
+Win Rate
+0.5R
+1:1
+1.5R
+1:2
+1:3
+1:5
+1:10
+30%
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 8% rule
+✗ 5% rule
+✓ All pass
+✓ All pass
+35%
+✗ 10% rule
+✗ 10% rule
+✗ 8% rule
+✗ 5% rule
+✓ All pass
+✓ All pass
+✓ All pass
+40%
+✗ 10% rule
+✗ 8% rule
+✗ 5% rule
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+45%
+✗ 10% rule
+✗ 5% rule
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+50%
+✗ 8% rule
+✗ 5% rule
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+55%
+✗ 5% rule
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+60%
+✗ 5% rule
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+65%
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+70%
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+
+MAX DRAWDOWN MATRIX — 0.5% Risk · 100 Trades (95th Percentile)
+At 0.5% risk, low win rate strategies begin showing elevated drawdown. Strategies must have at least 1:2 R:R or 50%+ win rate to pass the 8% prop firm rule.
+Win Rate
+0.5R
+1:1
+1.5R
+1:2
+1:3
+1:5
+1:10
+30%
+28.4%
+24.1%
+21.3%
+17.1%
+11.8%
+9.1%
+8.2%
+35%
+25.8%
+21.0%
+17.2%
+12.8%
+9.6%
+7.3%
+6.8%
+40%
+23.5%
+17.4%
+12.3%
+8.7%
+7.2%
+6.3%
+6.3%
+45%
+20.4%
+14.0%
+9.0%
+6.8%
+5.9%
+5.4%
+5.4%
+50%
+17.2%
+10.5%
+6.6%
+5.4%
+4.9%
+4.9%
+4.4%
+55%
+14.4%
+6.9%
+5.1%
+4.9%
+3.9%
+3.9%
+3.9%
+60%
+12.0%
+5.4%
+4.4%
+3.9%
+3.4%
+3.4%
+3.4%
+65%
+8.7%
+4.0%
+3.4%
+3.5%
+3.0%
+3.0%
+3.0%
+70%
+5.7%
+3.0%
+3.0%
+3.0%
+3.0%
+3.0%
+2.5%
+
+PROP FIRM SAFETY MATRIX — 0.5% Risk · 100 Trades
+At 0.5% risk, strategies need st
+
+=== CHUNK 30000-33000 ===
+ronger R:R or higher win rate to clear prop firm thresholds.
+Win Rate
+0.5R
+1:1
+1.5R
+1:2
+1:3
+1:5
+1:10
+30%
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 8% rule
+✗ 8% rule
+35%
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 8% rule
+✗ 5% rule
+✗ 5% rule
+40%
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 8% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+45%
+✗ 10% rule
+✗ 10% rule
+✗ 8% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+50%
+✗ 10% rule
+✗ 10% rule
+✗ 5% rule
+✗ 5% rule
+✓ All pass
+✓ All pass
+✓ All pass
+55%
+✗ 10% rule
+✗ 5% rule
+✗ 5% rule
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+60%
+✗ 10% rule
+✗ 5% rule
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+65%
+✗ 8% rule
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+70%
+✗ 5% rule
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+✓ All pass
+
+MAX DRAWDOWN MATRIX — 1% Risk · 100 Trades (95th Percentile)
+At 1% risk, the drawdown picture becomes significantly more demanding. Only strategies with 45%+ win rate and 1:2+ R:R reliably pass prop firm rules. This is the standard deployment risk level once a strategy has been validated.
+Win Rate
+0.5R
+1:1
+1.5R
+1:2
+1:3
+1:5
+1:10
+30%
+49.0%
+43.2%
+37.6%
+31.4%
+23.0%
+17.5%
+15.7%
+35%
+45.1%
+37.2%
+30.7%
+24.0%
+16.6%
+14.2%
+13.1%
+40%
+41.7%
+31.3%
+24.1%
+18.5%
+13.2%
+12.2%
+11.4%
+45%
+36.8%
+26.2%
+17.1%
+13.3%
+11.4%
+10.5%
+9.6%
+50%
+31.5%
+19.3%
+12.8%
+11.4%
+9.7%
+8.8%
+8.6%
+55%
+27.3%
+14.3%
+10.2%
+8.7%
+8.6%
+7.7%
+7.7%
+60%
+22.3%
+10.5%
+7.8%
+7.8%
+6.8%
+6.8%
+6.8%
+65%
+16.2%
+7.8%
+6.8%
+6.8%
+5.9%
+5.9%
+5.9%
+70%
+11.4%
+5.9%
+5.9%
+4.9%
+5.0%
+4.9%
+5.9%
+
+PROP FIRM SAFETY MATRIX — 1% Risk · 100 Trades
+At 1% risk virtually all strategies fail all prop firm rules — confirming that 1% is a live trading risk level, not a prop firm challenge risk level. Scale down to 0.25% for challenge phases.
+Win Rate
+0.5R
+1:1
+1.5R
+1:2
+1:3
+1:5
+1:10
+30%
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+35%
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+40%
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+45%
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+50%
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 8% rule
+✗ 8% rule
+✗ 8% rule
+55%
+✗ 10% rule
+✗ 10% rule
+✗ 10% rule
+✗ 8% rule
+✗ 8% rule
+✗ 5% rule
+✗ 5% rule
+60%
+✗ 10% rule
+✗ 10% rule
+✗ 8% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+65%
+✗ 10% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+70%
+✗ 10% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+✗ 5% rule
+
+Reading the Matrices — Key Takeaways
+These six matrices together tell a clear story about what makes a strategy viable:
+At 0.25% risk most strategy combinations are safe — use this risk level exclusively during prop firm challenge phases and initial live validation
+At 0.5% risk you need at minimum 45% win rate and 1:2 R:R to pass the 8% prop firm rule — this is the recommended risk level for early live deployment
+At 1% risk virtually nothing passes prop firm rules — 1% is a mature
+
+=== CHUNK 33000-36000 ===
+ live trading risk level only, after a strategy has 3+ months of validated performance
+Low R:R strategies (0.5R, 1:1) are dangerous at any risk level unless win rate is extremely high — the Backtester should rarely select these
+High R:R strategies (1:3, 1:5, 1:10) dramatically reduce drawdown even at lower win rates — the Strategy Builder should bias toward higher R:R setups
+The green zone (DD below 5%) is the target for all deployed strategies — anything yellow or above requires risk reduction before deployment
+
+Consecutive Loss Streak Estimation
+One of the most psychologically damaging aspects of any trading strategy is the losing streak. The system estimates the expected maximum consecutive loss streak for each strategy using the formula: log((1 - Loss Rate) x N) / log(1 / Loss Rate) + 2. This is surfaced prominently in the Backtester output and the Trading Coach's weekly report so the Trader can prepare for and withstand streaks without abandoning a strategy prematurely.
+45% WR over 100 trades
+Expected max losing streak: ~6 consecutive losses
+40% WR over 100 trades
+Expected max losing streak: ~7 consecutive losses
+35% WR over 100 trades
+Expected max losing streak: ~8 consecutive losses
+Streak at 0.25% risk (6 losses)
+~1.5% account drawdown from streak alone — safe
+Streak at 0.5% risk (6 losses)
+~2.9% account drawdown from streak alone — safe
+Streak at 1% risk (6 losses)
+~5.85% account drawdown from streak alone — approaching limits
+Streak at 2% risk (6 losses)
+~11.4% account drawdown from streak alone — breaches 10% prop rule
+Key insight
+At 2% risk, a normal 6-loss streak nearly breaches the 10% prop firm rule. This is why 2% is the absolute cap, not a default.
+
+Compounding Impact on Strategy Selection
+The Backtester projects each strategy's return under three compounding scenarios. These projections inform the Trading Coach's performance benchmarks and the decision of when to increase or decrease exposure to a given strategy:
+No Compounding
+Risk amount is fixed at starting capital. Predictable, linear growth. Safest approach while validating a strategy in live conditions.
+Monthly Compounding
+Risk amount rebased to current account balance monthly. Accelerates gains in winning periods but also accelerates drawdowns. Recommended once a strategy has 3+ months of live validation.
+Per-Trade Compounding
+Risk % applied to balance after every single trade. Maximum growth potential but maximum drawdown amplification. Reserved for strategies with strong live track record only.
+Coach Rule
+New strategies start on no-compounding. Monthly compounding is unlocked after 3 months of Good-tier performance. Per-trade compounding requires 6 months of Good-tier performance.
+
+
+Blockchain Data Architecture
+Your existing backtester already demonstrates the correct approach to sourcing on-chain data. This section formalises how that data pipeline integrates into the agent network, which chains are supported, and how data quality is managed.
+
+Why On-Chain Data Over Tr
+
+=== CHUNK 36000-39000 ===
+aditional Sources
+On-chain subgraph data has several advantages over traditional price feeds like Yahoo Finance or CoinGecko for crypto assets. It is built from every individual swap event recorded on the blockchain, which means it can produce highly accurate VWAP (Volume-Weighted Average Price) candles rather than simple last-price snapshots. Large high-volume trades dominate the candle price, and thin-liquidity outlier swaps are automatically suppressed because they carry negligible weight. This produces cleaner, more realistic historical data for backtesting.
+
+Supported Data Sources
+Primary: On-Chain Subgraphs (Full History)
+PulseChain
+PulseX v1/v2 subgraph — no API key required. Full swap history from genesis block. Best source for PulseChain tokens.
+Ethereum
+Uniswap v3 via The Graph decentralized network. Requires free API key from thegraph.com/studio/apikeys. Full history available.
+Base
+Uniswap v3 via The Graph. API key required. Full history from chain launch.
+Arbitrum
+Uniswap v3 via The Graph. API key required. Full history available.
+Polygon
+Uniswap v3 via The Graph. API key required. Full history available.
+BSC
+Uniswap v3 / PancakeSwap via The Graph. API key required.
+Avalanche
+Uniswap v3 via The Graph. API key required.
+Solana
+GeckoTerminal OHLCV API — no subgraph available. Approximately 3 months of hourly history. No API key required.
+
+Fallback: GeckoTerminal OHLCV API
+When a subgraph API key is unavailable or a chain has no subgraph, the system falls back to GeckoTerminal's public OHLCV endpoint. This provides pre-aggregated candle data rather than raw swaps, which means VWAP cannot be applied — thin-liquidity price spikes in the high/low extremes may still appear. GeckoTerminal is limited to approximately 3 months of hourly history, which is insufficient for meaningful multi-year backtesting. Use subgraph data wherever possible.
+
+On the Genesis Block Question
+Sourcing data from a coin's genesis block is technically possible and your backtester already supports it via the subgraph approach — all swaps from the first transaction onward are available. However, using genesis-to-present data for backtesting decisions requires careful judgement:
+Early trading periods (typically the first 1-3 months) have near-zero liquidity. Prices can move dramatically on tiny trades, creating ATH readings and Fibonacci levels that are artifacts of illiquidity rather than genuine market discovery.
+The trading dynamics of a newly launched token bear little resemblance to how it trades once liquidity matures. Strategies trained on early chaos may perform poorly in normal conditions.
+The data quality analyser in your existing backtester already flags this — it detects candles where high/low ratios exceed 5x, which is the signature of thin-liquidity distortion.
+Recommended approach: fetch full history from genesis for completeness and research purposes, but set the backtesting window to begin once minimum liquidity thresholds are met — for example, once 30
+
+=== CHUNK 39000-43604 ===
+-day average daily volume exceeds $50,000 USD.
+
+VWAP Candle Construction
+Both the PulseX and Uniswap v3 data paths construct candles using Volume-Weighted Average Price rather than simple last-price. This is the same methodology used in your existing backtester and should be carried forward into the agent network:
+Open
+First swap's raw price in the time bucket (chronological entry point)
+High
+Highest raw swap price seen in the bucket — preserved for sell trigger detection
+Low
+Lowest raw swap price seen in the bucket — preserved for buy trigger detection
+Close (VWAP)
+Sum of (price × USD volume) divided by total USD volume — large trades dominate, small outlier swaps are suppressed
+Volume
+Sum of amountUSD across all swaps in the bucket
+Swap Count
+Number of individual swaps in the bucket — low counts flag sparse liquidity periods
+
+Pair Auto-Detection
+Rather than requiring a pair address, the system takes a token contract address and automatically finds the best trading pair. The selection logic mirrors your backtester: prefer stablecoin pairs first (most accurate USD pricing), then wrapped native token pairs, then any other pair ranked by volume or TVL. This means the Backtester always prices strategies in USD terms regardless of what the token's primary pair is.
+
+Data Quality Checks
+Before any strategy is backtested, the data pipeline runs an automated quality analysis — the same checks implemented in your existing backtester:
+Intra-candle high/low ratio check: flags candles where the high is more than 5x the low, indicating thin-liquidity price spikes
+Candle-to-candle VWAP jump check: flags consecutive candles where the close price jumps more than 10x, which can create false ATH readings
+Single-swap candle density: if more than 30% of candles contain only one swap, VWAP provides no smoothing — recommends using a larger time bucket
+Any data quality warning is surfaced to the Trading Coach and logged with the backtest results — strategies run on flagged data are assigned a lower confidence rating
+
+
+The Continuous Improvement Loop
+What separates this system from a static trading algorithm is the continuous feedback loop between all four agents. Each cycle, the network learns from its own performance and generates progressively better strategies.
+
+Cycle Duration
+Default: 1 month per full cycle (can be adjusted to weekly)
+Strategy Refresh
+New batch of 100 strategies generated each cycle by the Builder — top 3 survivors deployed
+Performance Anchor
+Coach feedback anchors next cycle's focus to what is working now
+Memory
+All agents have access to the full history — no repeating known failures
+Human Checkpoints
+Monthly review report is surfaced for human approval before major changes
+
+Data Flow Between Agents
+From
+→
+To
+Data Passed
+Strategy Builder
+→
+Backtester
+100 candidate strategy JSONs
+Backtester
+→
+Trader
+Top 3 strategy JSONs + full scorecards + matrix classifications
+Trader
+→
+Trading Coach
+Daily trade logs + weekly P&L summary
+Trading Coach
+→
+Strategy Builder
+Feedback report + performance insights
+Trading Coach
+→
+Trader
+Risk adjustment instructions
+Backtester
+→
+Trading Coach
+Full scorecard history for all strategies
+
+
+Next Steps: Building the Network
+With the architecture defined, the following build sequence is recommended to bring this system to life inside your existing Claude Code project:
+
+Phase 1
+Rename and reshape the existing 4 agents to match these roles — update agent names, system prompts, and responsibilities
+Phase 2
+Port the blockchain data pipeline from your existing backtester into the project — PulseX subgraph, Uniswap v3 via The Graph, and GeckoTerminal fallback. This becomes the shared data layer all agents use.
+Phase 3
+Build the backtesting engine — feed candle data from Phase 2 into the Backtester agent's scoring model, implement hard elimination filters and dynamic risk per trade selection (0.5% to 2% cap)
+Phase 4
+Connect the Trader to Alpaca paper trading API for simulated live execution with no real money at risk. Implement strategy-specific risk settings with hard safety overrides.
+Phase 5
+Build the Trading Coach's performance tracking and feedback report generation
+Phase 6
+Wire the feedback loop — Coach output feeds Strategy Builder input each cycle
+Phase 7
+Run the full system in paper trading mode for 30 days before any live capital deployment
+
+This document should be placed in your project as ARCHITECTURE.md so Claude Code can reference it when building each component. Each phase can be handed directly to Claude Code as a task, and it will implement the code using this document as the specification.
+
