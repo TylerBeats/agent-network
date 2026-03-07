@@ -230,6 +230,43 @@ def _regime_pnl(trades: list[Trade], initial_capital: float) -> tuple[float, flo
     return bull / initial_capital, bear / initial_capital, side / initial_capital
 
 
+def project_returns(
+    avg_r: float,
+    risk_pct: float,
+    trades_per_month: float,
+    horizons: tuple[int, ...] = (1, 3, 6, 12, 24),
+) -> dict[str, dict[str, float]]:
+    """
+    Project cumulative returns at multiple time horizons under three compounding scenarios.
+
+    Args:
+        avg_r:            Average R-multiple per trade (from backtest metrics).
+        risk_pct:         Risk per trade as a percentage (e.g. 1.0 = 1%).
+        trades_per_month: Estimated trades per calendar month.
+        horizons:         Tuple of month counts to project (default 1/3/6/12/24).
+
+    Returns:
+        Dict keyed by "<n>m" (e.g. "1m", "3m") containing:
+          "none"      — linear growth, fixed risk base (no compounding)
+          "monthly"   — equity rebased monthly before sizing
+          "per_trade" — equity compounded after every trade
+
+    All values are fractional returns (e.g. 0.05 = 5% gain).
+    """
+    risk_frac      = risk_pct / 100.0
+    ev_per_trade   = avg_r * risk_frac          # expected fractional gain per trade
+    monthly_factor = trades_per_month * ev_per_trade  # expected fractional gain per month
+
+    result: dict[str, dict[str, float]] = {}
+    for n in horizons:
+        n_trades = trades_per_month * n
+        no_comp   = round(n_trades * ev_per_trade, 6)
+        monthly   = round((1.0 + monthly_factor) ** n - 1.0, 6)
+        per_trade = round((1.0 + ev_per_trade) ** n_trades - 1.0, 6) if ev_per_trade > -1 else -1.0
+        result[f"{n}m"] = {"none": no_comp, "monthly": monthly, "per_trade": per_trade}
+    return result
+
+
 def _zero_metrics(risk_pct: float) -> MetricsResult:
     return MetricsResult(
         sharpe=0.0, sortino=0.0,

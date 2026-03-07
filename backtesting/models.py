@@ -54,6 +54,7 @@ class BacktestResult:
     oos_trade_count: int = 0      # Number of trades in OOS period
     oos_win_rate: float = 0.0     # Win rate in OOS period
     confidence_rating: str = "Medium"  # "High" | "Medium" | "Low"
+    direction: str = "long"       # "long" | "short" — empirically selected by bidirectional test
 
 
 @dataclass
@@ -120,6 +121,8 @@ class EvaluatedStrategy:
     filter_result: FilterResult
     score: ScoreResult | None     # None when filtered out
     mc_result: MonteCarloResult | None = None
+    all_risk_results: list = field(default_factory=list)  # list[RiskLevelResult]
+    recent_window: dict | None = None  # metrics over most recent 5yr window
 
 
 @dataclass

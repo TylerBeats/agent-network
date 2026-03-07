@@ -5,7 +5,8 @@
       "Bash(pip install:*)",
       "Bash(python3:*)",
       "Bash(ls:*)",
-      "Bash(pytest:*)"
+      "Bash(pytest:*)",
+      "Bash(winget upgrade:*)"
     ]
   }
 }

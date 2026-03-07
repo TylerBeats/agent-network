@@ -19,3 +19,7 @@ BROKER_MODE: str       = os.getenv("BROKER_MODE", "dry_run")   # "dry_run" | "al
 ASSET_CHAIN: str          = os.getenv("ASSET_CHAIN", "pulsechain")
 ASSET_TOKEN_ADDRESS: str  = os.getenv("ASSET_TOKEN_ADDRESS", "")
 ASSET_BUCKET_SECONDS: int = int(os.getenv("ASSET_BUCKET_SECONDS", "14400"))  # 4h default
+
+# Local LLM support
+LOCAL_LLM: bool       = os.getenv("LOCAL_LLM", "false").lower() == "true"
+LOCAL_LLM_MODEL: str  = os.getenv("LOCAL_LLM_MODEL", "")

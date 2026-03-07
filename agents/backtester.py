@@ -6,9 +6,9 @@ from datetime import datetime, timezone
 from anthropic import Anthropic
 
 from agents.worker import WorkerAgent
-from backtesting.engine import WARMUP_BARS, pick_best_risk_level, run_all_risk_levels, run_oos_validation
+from backtesting.engine import WARMUP_BARS, run_bidirectional, run_oos_validation, run_recent_window
 from backtesting.filters import apply_filters
-from backtesting.metrics import compute_metrics
+from backtesting.metrics import compute_metrics, project_returns
 from backtesting.models import (
     EvaluatedStrategy,
     Strategy,
@@ -143,14 +143,20 @@ class BacktesterAgent(WorkerAgent):
                 logger.warning("Skipping malformed strategy: %s", exc)
                 continue
 
-            risk_results = run_all_risk_levels(strategy, is_candles)
-            best         = pick_best_risk_level(risk_results, n_total_bars=n_total)
-            best.strategy_id = strategy.id
-
-            # OOS validation at the selected risk level
-            oos_sharpe, oos_count, oos_wr = run_oos_validation(
-                strategy, oos_candles, best.best_risk_pct
+            # Bidirectional: run both long and short, pick the better direction by Sharpe
+            risk_results, best, direction = run_bidirectional(
+                strategy, is_candles, n_total_bars=n_total
             )
+            best.strategy_id = strategy.id
+            force_short = (direction == "short")
+
+            # OOS validation in the same direction as IS selection
+            oos_sharpe, oos_count, oos_wr = run_oos_validation(
+                strategy, oos_candles, best.best_risk_pct, force_short=force_short
+            )
+
+            # Recent 5yr window (display-only, uses full candle series)
+            recent = run_recent_window(strategy, candles, best.best_risk_pct, force_short=force_short)
             best.oos_sharpe      = oos_sharpe
             best.oos_trade_count = oos_count
             best.oos_win_rate    = oos_wr
@@ -183,6 +189,8 @@ class BacktesterAgent(WorkerAgent):
                 filter_result=f_result,
                 score=score,
                 mc_result=mc_result,
+                all_risk_results=risk_results,
+                recent_window=recent or None,
             ))
             if f_result.passed:
                 logger.info(
@@ -219,16 +227,21 @@ class BacktesterAgent(WorkerAgent):
             selection_note=_build_selection_note(winners),
         ) if winners else None
 
-        # -- LLM generates the narrative report (only when there is a winner) --
-        narrative = ""
-        if selection is not None:
-            llm_prompt = _build_llm_prompt(selection, quality)
-            narrative  = self._call_llm(llm_prompt)
+        # -- Deterministic narrative report (no LLM needed — all data is computed) --
+        narrative = _build_narrative_report(selection, quality) if selection is not None else ""
+
+        is_years = period.get("years_covered", 1.0)
+
+        # Precompute per-risk-level breakdown for passing strategies only
+        _breakdown_cache: dict[str, list[dict]] = {}
+        for e in evaluated:
+            if e.filter_result.passed and e.all_risk_results:
+                _breakdown_cache[e.strategy.id] = _risk_breakdown(e.all_risk_results, is_years)
 
         result = {
-            "winner":             _evaluated_to_dict(selection.winner) if selection else None,
-            "winners":            [_evaluated_to_dict(w) for w in winners],
-            "runner_up":          _evaluated_to_dict(selection.runner_up) if (selection and selection.runner_up) else None,
+            "winner":             _safe_to_dict(selection.winner, is_years, _breakdown_cache) if selection else None,
+            "winners":            [d for d in (_safe_to_dict(w, is_years, _breakdown_cache) for w in winners) if d is not None],
+            "runner_up":          _safe_to_dict(selection.runner_up, is_years, _breakdown_cache) if (selection and selection.runner_up) else None,
             "period":             period,
             "elimination_report": _build_elimination_report(evaluated),
             "all_scores":         [
@@ -240,6 +253,7 @@ class BacktesterAgent(WorkerAgent):
                     "score":           round(e.score.total, 2) if e.score else None,
                     "total_pnl_pct":   round(e.metrics.total_pnl_pct, 4),
                     "total_pnl_usd":   round(e.metrics.total_pnl_usd, 2),
+                    "annualised_return_pct": round(_annualise(e.metrics.total_pnl_pct, is_years) * 100, 2),
                     "max_drawdown_pct": round(e.metrics.max_drawdown_pct, 4),
                     "win_rate":        round(e.metrics.win_rate, 4),
                     "profit_factor":   round(e.metrics.profit_factor, 3),
@@ -255,6 +269,9 @@ class BacktesterAgent(WorkerAgent):
                     "primary_indicator": e.strategy.primary_indicator.get("type", ""),
                     "entry_trigger":   e.strategy.entry.get("trigger", ""),
                     "confirmation":    e.strategy.entry.get("filter", "NONE"),
+                    "direction":       e.backtest.direction,
+                    "recent_window":   e.recent_window,
+                    "risk_breakdown":  _breakdown_cache.get(e.strategy.id),
                 }
                 for e in evaluated
             ],
@@ -291,32 +308,103 @@ def _parse_strategy(raw: dict) -> Strategy:
     )
 
 
-def _evaluated_to_dict(e: EvaluatedStrategy) -> dict:
+def _evaluated_to_dict(
+    e: EvaluatedStrategy,
+    is_years: float = 1.0,
+    risk_breakdown: list | None = None,
+) -> dict:
+    trades_per_month = e.metrics.trade_count / max(is_years * 12, 1)
+    projections = project_returns(
+        avg_r=e.metrics.avg_r_multiple,
+        risk_pct=e.backtest.best_risk_pct,
+        trades_per_month=trades_per_month,
+    )
+    total_ret = e.metrics.total_pnl_pct
+    annual_ret = _annualise(total_ret, is_years)
     return {
-        "strategy_id":       e.strategy.id,
-        "strategy_name":     e.strategy.name,
-        "best_risk_pct":     e.backtest.best_risk_pct,
-        "trade_count":       e.metrics.trade_count,
-        "sharpe":            round(e.metrics.sharpe, 3),
-        "sortino":           round(e.metrics.sortino, 3),
-        "max_drawdown":      round(e.metrics.max_drawdown_pct, 4),
-        "win_rate":          round(e.metrics.win_rate, 4),
-        "profit_factor":     round(e.metrics.profit_factor, 3),
-        "avg_r":             round(e.metrics.avg_r_multiple, 3),
-        "total_pnl_pct":     round(e.metrics.total_pnl_pct, 4),
-        "total_pnl_usd":     round(e.metrics.total_pnl_usd, 2),
-        "score":             e.score.total if e.score else None,
-        "score_detail":      asdict(e.score) if e.score else None,
+        "strategy_id":           e.strategy.id,
+        "strategy_name":         e.strategy.name,
+        "best_risk_pct":         e.backtest.best_risk_pct,
+        "trade_count":           e.metrics.trade_count,
+        "sharpe":                round(e.metrics.sharpe, 3),
+        "sortino":               round(e.metrics.sortino, 3),
+        "max_drawdown":          round(e.metrics.max_drawdown_pct, 4),
+        "win_rate":              round(e.metrics.win_rate, 4),
+        "profit_factor":         round(e.metrics.profit_factor, 3),
+        "avg_r":                 round(e.metrics.avg_r_multiple, 3),
+        "total_pnl_pct":         round(total_ret, 4),
+        "total_pnl_usd":         round(e.metrics.total_pnl_usd, 2),
+        "annualised_return_pct": round(annual_ret * 100, 2),
+        "direction":             e.backtest.direction,
+        "recent_window":         e.recent_window,
+        "score":                 e.score.total if e.score else None,
+        "score_detail":          asdict(e.score) if e.score else None,
         # OOS validation metrics
-        "oos_sharpe":        round(e.backtest.oos_sharpe, 3),
-        "oos_trade_count":   e.backtest.oos_trade_count,
-        "oos_win_rate":      round(e.backtest.oos_win_rate, 4),
-        "confidence_rating": e.backtest.confidence_rating,
+        "oos_sharpe":            round(e.backtest.oos_sharpe, 3),
+        "oos_trade_count":       e.backtest.oos_trade_count,
+        "oos_win_rate":          round(e.backtest.oos_win_rate, 4),
+        "confidence_rating":     e.backtest.confidence_rating,
         # Full strategy schema so the Trader can reconstruct the Strategy object
-        "strategy_schema":   asdict(e.strategy),
+        "strategy_schema":       asdict(e.strategy),
         # Monte Carlo 95th-pct drawdown (used by Coach for live DD comparison)
-        "mc_p95_dd":         round(e.mc_result.p95_drawdown, 4) if e.mc_result else None,
+        "mc_p95_dd":             round(e.mc_result.p95_drawdown, 4) if e.mc_result else None,
+        # Per-risk-level breakdown (all tested levels, not just best)
+        "risk_breakdown":        risk_breakdown or [],
+        # Return projections at 1/3/6/12/24 months under 3 compounding scenarios
+        "projected_monthly_pnl_pct": projections["1m"]["none"],
+        "return_projections":        projections,
     }
+
+
+def _safe_to_dict(
+    e: EvaluatedStrategy,
+    is_years: float,
+    breakdown_cache: dict,
+) -> dict | None:
+    """Wrap _evaluated_to_dict in a try/except so one failing winner doesn't drop others."""
+    try:
+        return _evaluated_to_dict(e, is_years, breakdown_cache.get(e.strategy.id))
+    except Exception as exc:
+        logger.error("Failed to serialise winner %s: %s", e.strategy.id, exc)
+        return None
+
+
+def _annualise(total_ret: float, is_years: float) -> float:
+    """Annualise a total return fraction. Returns -1.0 if total loss >= 100%."""
+    if total_ret <= -1.0:
+        return -1.0
+    return ((1 + total_ret) ** (1 / max(is_years, 0.01))) - 1
+
+
+def _risk_breakdown(risk_results: list, is_years: float) -> list[dict]:
+    """Compute per-risk-level return, max DD, Sharpe, and MC95 for display."""
+    from backtesting.monte_carlo import run_monte_carlo
+    breakdown = []
+    for r in risk_results:
+        eq = r.equity_curve
+        if not eq:
+            continue
+        initial = eq[0]
+        total_ret = (eq[-1] - initial) / initial if initial > 0 else 0.0
+        annual_ret = _annualise(total_ret, is_years)
+        peak, max_dd = initial, 0.0
+        for v in eq:
+            if v > peak:
+                peak = v
+            if peak > 0:
+                dd = (peak - v) / peak
+                if dd > max_dd:
+                    max_dd = dd
+        mc = run_monte_carlo(r.trades, r.risk_pct) if r.trades else None
+        breakdown.append({
+            "risk_pct":          r.risk_pct,
+            "total_return_pct":  round(total_ret * 100, 2),
+            "annual_return_pct": round(annual_ret * 100, 2),
+            "max_drawdown_pct":  round(max_dd * 100, 2),
+            "sharpe":            round(r.sharpe, 3),
+            "mc_p95_dd":         round(mc.p95_drawdown * 100, 2) if mc else None,
+        })
+    return breakdown
 
 
 def _ts_to_date(ts_ms: int) -> str:
@@ -405,45 +493,52 @@ def _build_elimination_report(evaluated: list[EvaluatedStrategy]) -> list[dict]:
     ]
 
 
-def _build_llm_prompt(selection: StrategySelection, quality) -> str:
-    eliminated = [e for e in selection.all_evaluated if not e.filter_result.passed]
-    winner_lines = []
-    for i, w in enumerate(selection.winners, 1):
-        oos_is_pct = (
-            f"{(w.backtest.oos_sharpe / w.metrics.sharpe * 100):.0f}%"
-            if w.metrics.sharpe > 0 else "n/a"
-        )
-        mc_note = ""
-        if w.mc_result:
-            mc_note = (
-                f"  MC 95th pct DD: {w.mc_result.p95_drawdown:.1%}  "
-                f"Risk class: {w.mc_result.risk_class}  "
-                f"8% prop rule: {'PASS' if w.mc_result.prop_firm_8pct else 'FAIL'}\n"
-            )
-        winner_lines.append(
-            f"WINNER #{i}: {w.strategy.name}\n"
-            f"  Score: {w.score.total:.1f}/100  EV: {w.metrics.avg_r_multiple:.2f}R/trade\n"
-            f"  Risk level: {w.backtest.best_risk_pct}%\n"
-            f"  IS Sharpe: {w.metrics.sharpe:.2f}  IS Sortino: {w.metrics.sortino:.2f}\n"
-            f"  OOS Sharpe: {w.backtest.oos_sharpe:.2f}  OOS/IS: {oos_is_pct}\n"
-            f"  Max drawdown: {w.metrics.max_drawdown_pct:.1%}  "
-            f"Win rate: {w.metrics.win_rate:.1%}  PF: {w.metrics.profit_factor:.2f}\n"
-            f"  Trades: {w.metrics.trade_count}  Confidence: {w.backtest.confidence_rating}\n"
-            f"{mc_note}"
-        )
+def _build_narrative_report(selection: StrategySelection, quality) -> str:
+    """
+    Build a concise evaluation report using only computed data — no LLM call required.
+    All metrics are deterministic; no reasoning is needed here.
+    """
     top = selection.winner
-    elim_lines = "\n".join(
-        f"  - {e.strategy.name}: {e.filter_result.failure_reason}" for e in eliminated
+    eliminated = [e for e in selection.all_evaluated if not e.filter_result.passed]
+
+    oos_is_pct = (
+        top.backtest.oos_sharpe / top.metrics.sharpe * 100
+        if top.metrics.sharpe > 0 else 0.0
     )
-    return (
-        "You are the Backtester agent. Produce a concise evaluation report.\n\n"
-        + "\n".join(winner_lines)
-        + f"\nELIMINATED ({len(eliminated)} strategies):\n"
-        + elim_lines
-        + f"\n\nDATA QUALITY: confidence={quality.confidence}, warnings={quality.warnings}\n\n"
-        "Write a 3-5 sentence evaluation report explaining: why the top-ranked strategy was "
-        "selected, what its key strengths are (EV per trade and Monte Carlo risk class), "
-        "how OOS performance compares to IS, and the main elimination reasons. "
-        f"The confidence rating for the primary winner is '{top.backtest.confidence_rating}' -- "
-        "confirm or briefly explain this rating."
+    robustness = (
+        "strong OOS robustness"          if oos_is_pct >= 70
+        else "acceptable OOS degradation" if oos_is_pct >= 40
+        else "significant OOS degradation — deploy cautiously"
     )
+
+    mc_note = ""
+    if top.mc_result:
+        prop = "passing" if top.mc_result.prop_firm_8pct else "failing"
+        mc_note = (
+            f"Monte Carlo 95th-pct DD {top.mc_result.p95_drawdown:.1%} "
+            f"({top.mc_result.risk_class} risk, {prop} 8% prop rule). "
+        )
+
+    # Tally most common elimination reason
+    reason_counts: dict[str, int] = {}
+    for e in eliminated:
+        key = (e.filter_result.failure_reason or "unknown").split(":")[0].strip()
+        reason_counts[key] = reason_counts.get(key, 0) + 1
+    top_reason = max(reason_counts, key=reason_counts.get) if reason_counts else "various"
+
+    n_winners = len(selection.winners)
+    winner_names = ", ".join(f"'{w.strategy.name}'" for w in selection.winners)
+
+    sentences = [
+        f"Selected {n_winners} winner{'s' if n_winners > 1 else ''}: {winner_names}.",
+        (
+            f"Top-ranked '{top.strategy.name}' scored {top.score.total:.1f}/100 with EV "
+            f"{top.metrics.avg_r_multiple:.2f}R/trade, Sharpe {top.metrics.sharpe:.2f} IS / "
+            f"{top.backtest.oos_sharpe:.2f} OOS ({oos_is_pct:.0f}%) — {robustness}."
+        ),
+        f"{mc_note}Win rate {top.metrics.win_rate:.1%}, PF {top.metrics.profit_factor:.2f}, "
+        f"max DD {top.metrics.max_drawdown_pct:.1%}, {top.metrics.trade_count} IS trades.",
+        f"{len(eliminated)} strategies eliminated; most common failure: {top_reason}.",
+        f"Confidence: {top.backtest.confidence_rating} | Data quality: {quality.confidence}.",
+    ]
+    return " ".join(s for s in sentences if s.strip())

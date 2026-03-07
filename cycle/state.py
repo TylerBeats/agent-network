@@ -63,6 +63,17 @@ class CycleState:
     months_at_good_tier: dict = field(default_factory=dict)      # {strategy_id: int}
     per_strategy_compounding: dict = field(default_factory=dict) # {strategy_id: "none"|"monthly"|"per_trade"}
 
+    # ISO date of the last forward_test.py run — used to detect day/week rollovers
+    last_forward_test_date: str = ""
+
+    # Consecutive months each strategy's live return fell below 50% of projected monthly return.
+    # Mechanical Coach rule: >= 2 triggers 0.5x multiplier + retirement flag.
+    months_below_projection: dict = field(default_factory=dict)  # {strategy_id: int}
+
+    # Return projection data from the most recent Backtester run
+    projected_monthly_pnl_pct_by_strategy: dict = field(default_factory=dict)  # {sid: float}
+    return_projections_by_strategy: dict = field(default_factory=dict)          # {sid: {horizon: {scenario: float}}}
+
 
 def state_path_for(asset_key: str) -> str:
     """Return the JSON file path for the given asset key."""
@@ -97,6 +108,10 @@ def load_state(path: str = STATE_FILE) -> CycleState:
         mc_p95_dd_by_strategy=data.get("mc_p95_dd_by_strategy", {}),
         months_at_good_tier=data.get("months_at_good_tier", {}),
         per_strategy_compounding=data.get("per_strategy_compounding", {}),
+        last_forward_test_date=data.get("last_forward_test_date", ""),
+        months_below_projection=data.get("months_below_projection", {}),
+        projected_monthly_pnl_pct_by_strategy=data.get("projected_monthly_pnl_pct_by_strategy", {}),
+        return_projections_by_strategy=data.get("return_projections_by_strategy", {}),
     )
 
 
@@ -121,8 +136,12 @@ def save_state(state: CycleState, path: str = STATE_FILE) -> None:
         "projected_avg_r":          state.projected_avg_r,
         "projected_win_rate":       state.projected_win_rate,
         "mc_p95_dd_by_strategy":    state.mc_p95_dd_by_strategy,
-        "months_at_good_tier":      state.months_at_good_tier,
-        "per_strategy_compounding": state.per_strategy_compounding,
+        "months_at_good_tier":       state.months_at_good_tier,
+        "per_strategy_compounding":  state.per_strategy_compounding,
+        "last_forward_test_date":    state.last_forward_test_date,
+        "months_below_projection":                state.months_below_projection,
+        "projected_monthly_pnl_pct_by_strategy": state.projected_monthly_pnl_pct_by_strategy,
+        "return_projections_by_strategy":         state.return_projections_by_strategy,
     }
     with open(path, "w") as f:
         json.dump(payload, f, indent=2)

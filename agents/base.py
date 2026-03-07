@@ -13,6 +13,8 @@ class BaseAgent:
         self._inbox: list[Message] = []
         self._last_input_tokens:  int = 0
         self._last_output_tokens: int = 0
+        self._total_input_tokens:  int = 0  # cumulative across all LLM calls this session
+        self._total_output_tokens: int = 0
 
     def receive(self, message: Message):
         self._inbox.append(message)
@@ -34,12 +36,17 @@ class BaseAgent:
         self.memory.append({"role": "user", "content": prompt})
         response = self.client.messages.create(
             model=DEFAULT_MODEL,
-            max_tokens=4096,
+            max_tokens=8192,
             system=f"You are {self.name}, a {self.role}.",
             messages=self.memory,
         )
         self._last_input_tokens  = response.usage.input_tokens
         self._last_output_tokens = response.usage.output_tokens
+        try:
+            self._total_input_tokens  += int(response.usage.input_tokens)
+            self._total_output_tokens += int(response.usage.output_tokens)
+        except (TypeError, ValueError):
+            pass
         text = response.content[0].text
         self.memory.append({"role": "assistant", "content": text})
         return text

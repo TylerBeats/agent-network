@@ -33,6 +33,7 @@ def build_feedback_report(
     per_strategy_reviews: dict[str, WeeklyReview] | None = None,
     months_at_good_tier: dict[str, int] | None = None,
     per_strategy_compounding: dict[str, str] | None = None,
+    months_below_projection: dict[str, int] | None = None,
 ) -> FeedbackReport:
     """
     Assemble a FeedbackReport from quantitative data.
@@ -47,14 +48,18 @@ def build_feedback_report(
                                   months each strategy has held the Good tier.
         per_strategy_compounding: Optional dict of {strategy_id: mode} for current
                                   compounding mode per strategy.
+        months_below_projection:  Optional dict of {strategy_id: int} counting consecutive
+                                  months each strategy's return fell below 50% of its
+                                  projected monthly return. At >= 2: force 0.5x and retire.
 
     Returns:
         FeedbackReport with next_cycle_hypothesis left as empty string
         (the TradingCoachAgent LLM fills it in).
     """
-    per_strategy_reviews  = per_strategy_reviews or {}
-    months_at_good_tier   = months_at_good_tier or {}
+    per_strategy_reviews     = per_strategy_reviews or {}
+    months_at_good_tier      = months_at_good_tier or {}
     per_strategy_compounding = per_strategy_compounding or {}
+    months_below_projection  = months_below_projection or {}
 
     best_indicator_types = _extract_best_indicators(history)
     best_rr_ratio        = _extract_best_rr(history)
@@ -81,6 +86,33 @@ def build_feedback_report(
         months_good = months_at_good_tier.get(sid, 0)
         current_mode = per_strategy_compounding.get(sid, "none")
         new_compounding[sid] = _resolve_compounding_mode(sid, tier, months_good, current_mode)
+
+    # Mechanical rule: bottom-25% of strategies by this cycle's P&L gets an
+    # additional 0.75x reduction on top of the health-tier multiplier.
+    if len(per_strategy_reviews) >= 2:
+        sorted_by_pnl = sorted(per_strategy_reviews.items(), key=lambda kv: kv[1].pnl_pct)
+        n_bottom = max(1, len(sorted_by_pnl) // 4)
+        for sid, _ in sorted_by_pnl[:n_bottom]:
+            if sid in per_adjustments:
+                per_adjustments[sid] = round(per_adjustments[sid] * 0.75, 4)
+
+    # Mechanical rule: >= 2 consecutive months below 50% of projected monthly
+    # return → force multiplier to 0.5x and flag for retirement.
+    for sid, months_count in months_below_projection.items():
+        if months_count >= 2:
+            per_adjustments[sid] = 0.5
+            # Add to retired_patterns if not already there
+            schema = next(
+                (w.get("strategy_schema", {}) for w in reversed(history)
+                 if w.get("strategy_id") == sid),
+                {},
+            )
+            pattern = {
+                "primary_indicator_type": schema.get("primary_indicator", {}).get("type", ""),
+                "entry_trigger":          schema.get("entry", {}).get("trigger", ""),
+            }
+            if pattern not in retired_patterns and pattern.get("primary_indicator_type"):
+                retired_patterns.append(pattern)
 
     return FeedbackReport(
         cycle=cycle,

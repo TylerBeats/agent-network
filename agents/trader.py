@@ -10,6 +10,7 @@ from backtesting.signals import (
     calc_take_profit_price,
     check_entry,
     compute_indicators,
+    is_short_trigger,
 )
 from config.settings import (
     ALPACA_API_KEY,
@@ -82,12 +83,11 @@ class TraderAgent(WorkerAgent):
             if not strategies_list:
                 raise KeyError("No strategies provided")
         except (json.JSONDecodeError, KeyError, TypeError):
-            result = self._call_llm(message.content)
             return Message(
                 sender=self.name,
                 recipient=recipient,
-                type=MessageType.RESULT,
-                content=result,
+                type=MessageType.ERROR,
+                content="TraderAgent: malformed request — expected JSON with 'strategies' and 'asset' keys.",
             )
 
         # -- Initialise broker -----------------------------------------------------
@@ -170,10 +170,14 @@ class TraderAgent(WorkerAgent):
                     actions.append("no_signal")
                     continue
 
-                entry_price   = current_price * (1.0 + DryRunBroker.SLIPPAGE_PCT)
+                short = is_short_trigger(strategy.entry.get("trigger", ""))
+                side  = "sell" if short else "buy"
+                # Short fills slightly below market (receive less); long fills slightly above (pay more)
+                entry_price   = current_price * (1.0 - DryRunBroker.SLIPPAGE_PCT if short
+                                                 else 1.0 + DryRunBroker.SLIPPAGE_PCT)
                 stop_price    = calc_stop_price(strategy, entry_price, indicators, bar)
                 tp_price      = calc_take_profit_price(strategy, entry_price, stop_price)
-                risk_per_unit = entry_price - stop_price
+                risk_per_unit = abs(entry_price - stop_price)
 
                 if risk_per_unit <= 0:
                     actions.append("skipped:zero_risk")
@@ -207,11 +211,12 @@ class TraderAgent(WorkerAgent):
                     actions.append("skipped:max_positions")
                     continue
 
-                qty   = risk_usd / risk_per_unit
+                qty    = risk_usd / risk_per_unit
+                symbol = asset.get("token_address", asset.get("chain", "unknown"))
                 order = TradeOrder(
                     strategy_id=strat_id,
-                    symbol=asset.get("token_address", asset.get("chain", "unknown")),
-                    side="buy",
+                    symbol=symbol,
+                    side=side,
                     qty=qty,
                     order_type="limit",
                     limit_price=entry_price,
@@ -219,6 +224,21 @@ class TraderAgent(WorkerAgent):
                     take_profit=tp_price,
                     risk_usd=risk_usd,
                 )
+
+                # Directional correlation check — log same-symbol same-direction positions.
+                # The combined exposure cap above is the hard enforcement; this is informational.
+                open_positions = broker.get_open_positions()
+                same_dir = [
+                    p for p in open_positions
+                    if p.get("symbol") == symbol and p.get("side") == order.side
+                ]
+                if same_dir:
+                    logger.info(
+                        "TraderAgent [%s]: %d correlated same-direction position(s) open "
+                        "in %s — proceeding (exposure cap enforced above)",
+                        strat_id, len(same_dir), symbol,
+                    )
+
                 fill = broker.place_order(order)
                 actions.append("entry")
                 logger.info(

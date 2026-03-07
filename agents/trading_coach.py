@@ -70,6 +70,10 @@ class TradingCoachAgent(WorkerAgent):
             mc_p95_dd_by_strategy  = request.get("mc_p95_dd_by_strategy", {})
             months_at_good_tier    = request.get("months_at_good_tier", {})
             per_strategy_compounding = request.get("per_strategy_compounding", {})
+            projected_monthly_pnl_pct_by_strategy = request.get(
+                "projected_monthly_pnl_pct_by_strategy", {}
+            )
+            months_below_projection = dict(request.get("months_below_projection", {}))
         except (json.JSONDecodeError, TypeError):
             # Fallback: plain LLM response for unstructured tasks
             result = self._call_llm(message.content)
@@ -124,12 +128,29 @@ class TradingCoachAgent(WorkerAgent):
         all_weekly = prior_weekly + [weekly_review]
         monthly_review = compute_monthly_review(all_weekly, backtest_sharpe)
 
+        # -- Update months_below_projection counter ----------------------------
+        # Mechanical rule: if a strategy's monthly P&L is below 50% of its
+        # projected monthly return, increment the counter; otherwise reset it.
+        for sid, review in per_strategy_reviews.items():
+            projected = float(projected_monthly_pnl_pct_by_strategy.get(sid, 0.0))
+            if projected > 0 and review.pnl_pct < 0.5 * projected:
+                months_below_projection[sid] = months_below_projection.get(sid, 0) + 1
+                logger.info(
+                    "TradingCoachAgent [%s]: monthly PnL %.2f%% < 50%% of projected %.2f%% "
+                    "(%d consecutive month(s) below threshold)",
+                    sid, review.pnl_pct * 100, projected * 100,
+                    months_below_projection[sid],
+                )
+            else:
+                months_below_projection[sid] = 0
+
         # -- Build quantitative feedback report --------------------------------
         feedback = build_feedback_report(
             monthly_review, performance_history, cycle,
             per_strategy_reviews=per_strategy_reviews,
             months_at_good_tier=updated_months,
             per_strategy_compounding=per_strategy_compounding,
+            months_below_projection=months_below_projection,
         )
 
         # -- LLM generates the narrative and next-cycle hypothesis -------------
@@ -150,6 +171,7 @@ class TradingCoachAgent(WorkerAgent):
             "per_strategy_adjustments": feedback.per_strategy_adjustments,
             "compounding_modes":        feedback.compounding_modes,
             "months_at_good_tier":      updated_months,
+            "months_below_projection":  months_below_projection,
             "narrative":                narrative,
         }
 

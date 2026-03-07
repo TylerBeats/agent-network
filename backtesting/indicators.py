@@ -342,6 +342,38 @@ def donchian_channels(
     return upper, middle, lower
 
 
+def ichimoku(
+    high: np.ndarray,
+    low: np.ndarray,
+    tenkan_period: int = 9,
+    kijun_period: int = 26,
+    senkou_b_period: int = 52,
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Ichimoku Cloud — returns (cloud_upper, cloud_lower).
+    cloud_upper = max(Senkou A, Senkou B)
+    cloud_lower = min(Senkou A, Senkou B)
+    Spans are evaluated at the current bar (not shifted forward).
+    """
+    n = len(high)
+
+    def midpoint_arr(period: int) -> np.ndarray:
+        result = np.full(n, np.nan)
+        for i in range(period - 1, n):
+            result[i] = (np.max(high[i - period + 1:i + 1]) + np.min(low[i - period + 1:i + 1])) / 2.0
+        return result
+
+    tenkan   = midpoint_arr(tenkan_period)
+    kijun    = midpoint_arr(kijun_period)
+    senkou_a = (tenkan + kijun) / 2.0
+    senkou_b = midpoint_arr(senkou_b_period)
+
+    valid       = ~(np.isnan(senkou_a) | np.isnan(senkou_b))
+    cloud_upper = np.where(valid, np.maximum(senkou_a, senkou_b), np.nan)
+    cloud_lower = np.where(valid, np.minimum(senkou_a, senkou_b), np.nan)
+    return cloud_upper, cloud_lower
+
+
 def obv(close: np.ndarray, volume: np.ndarray) -> np.ndarray:
     """
     On-Balance Volume — cumulative volume indicator.

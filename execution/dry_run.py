@@ -121,12 +121,14 @@ class DryRunBroker(BaseBroker):
         remaining: list[dict] = []
 
         for pos in self._state["positions"]:
-            hit_stop = current_price <= pos["stop_price"]
-            hit_tp   = current_price >= pos["take_profit"]
+            short    = pos.get("side") == "sell"
+            hit_stop = (current_price >= pos["stop_price"]) if short else (current_price <= pos["stop_price"])
+            hit_tp   = (current_price <= pos["take_profit"]) if short else (current_price >= pos["take_profit"])
 
             if hit_stop or hit_tp:
                 exit_price  = pos["stop_price"] if hit_stop else pos["take_profit"]
-                gross_pnl   = (exit_price - pos["entry_price"]) * pos["qty"]
+                gross_pnl   = ((pos["entry_price"] - exit_price) * pos["qty"] if short
+                               else (exit_price - pos["entry_price"]) * pos["qty"])
                 commission  = max(self.COMMISSION_FLAT, exit_price * pos["qty"] * self.COMMISSION_PCT)
                 net_pnl     = gross_pnl - commission
                 risk_usd    = pos.get("risk_usd", 0.0)

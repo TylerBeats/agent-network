@@ -17,6 +17,7 @@ from backtesting.indicators import (
     cci,
     donchian_channels,
     ema,
+    ichimoku,
     keltner_channels,
     macd,
     obv,
@@ -29,6 +30,21 @@ from backtesting.indicators import (
 )
 from backtesting.models import Strategy
 from data.candles import Candle
+
+# ── Direction helpers ────────────────────────────────────────────────────────
+
+_SHORT_TRIGGERS: frozenset[str] = frozenset({
+    "RSI_OVERBOUGHT", "PRICE_BELOW_EMA", "MACD_CROSS_BELOW",
+    "BB_UPPER_TOUCH", "STOCH_OVERBOUGHT", "CCI_OVERBOUGHT",
+    "WILLR_OVERBOUGHT", "ROC_CROSS_BELOW", "DC_LOWER_BREAK", "KB_UPPER_TOUCH",
+    "KC_UPPER_TOUCH", "PRICE_BELOW_CLOUD",
+})
+
+
+def is_short_trigger(trigger_name: str) -> bool:
+    """Return True if the trigger implies a short (sell) entry."""
+    return trigger_name.upper() in _SHORT_TRIGGERS
+
 
 # ── Entry trigger evaluators ─────────────────────────────────────────────────
 # Each is called as fn(indicators_dict, bar_index) -> bool
@@ -119,6 +135,26 @@ ENTRY_TRIGGERS: dict[str, callable] = {
     "KB_UPPER_TOUCH":   lambda ind, i: (
         not math.isnan(ind["kb_upper"][i])
         and ind["close"][i] >= ind["kb_upper"][i]
+    ),
+    # Keltner Channel aliases (KC_ prefix = standard naming; same computation as KB_)
+    "KC_LOWER_TOUCH":   lambda ind, i: (
+        not math.isnan(ind["kb_lower"][i])
+        and ind["close"][i] <= ind["kb_lower"][i]
+    ),
+    "KC_UPPER_TOUCH":   lambda ind, i: (
+        not math.isnan(ind["kb_upper"][i])
+        and ind["close"][i] >= ind["kb_upper"][i]
+    ),
+    # Ichimoku Cloud triggers — crossover only (not persistent, to avoid excessive signals)
+    "PRICE_ABOVE_CLOUD": lambda ind, i: (
+        not math.isnan(ind["cloud_upper"][i]) and not math.isnan(ind["cloud_upper"][i - 1])
+        and ind["close"][i - 1] <= ind["cloud_upper"][i - 1]
+        and ind["close"][i] > ind["cloud_upper"][i]
+    ),
+    "PRICE_BELOW_CLOUD": lambda ind, i: (
+        not math.isnan(ind["cloud_lower"][i]) and not math.isnan(ind["cloud_lower"][i - 1])
+        and ind["close"][i - 1] >= ind["cloud_lower"][i - 1]
+        and ind["close"][i] < ind["cloud_lower"][i]
     ),
 }
 
@@ -249,6 +285,15 @@ def compute_indicators(strategy: Strategy, candles: list[Candle]) -> dict:
         ind["dc_upper"]  = upper
         ind["dc_middle"] = middle
         ind["dc_lower"]  = lower
+    elif p_type == "ICHIMOKU":
+        cloud_upper, cloud_lower = ichimoku(
+            high, low,
+            p_params.get("tenkan_period", 9),
+            p_params.get("kijun_period", 26),
+            p_params.get("senkou_b_period", 52),
+        )
+        ind["cloud_upper"] = cloud_upper
+        ind["cloud_lower"] = cloud_lower
     elif p_type == "OBV":
         ind["obv"] = obv(close, volume)
     else:
@@ -325,6 +370,9 @@ def compute_indicators(strategy: Strategy, candles: list[Candle]) -> dict:
     if "kb_upper" not in ind:
         ind["kb_upper"] = np.full(n, np.nan)
         ind["kb_lower"] = np.full(n, np.nan)
+    if "cloud_upper" not in ind:
+        ind["cloud_upper"] = np.full(n, np.nan)
+        ind["cloud_lower"] = np.full(n, np.nan)
 
     return ind
 
@@ -349,29 +397,50 @@ def check_entry(strategy: Strategy, indicators: dict, bar: int) -> bool:
         return False
 
 
-def calc_stop_price(strategy: Strategy, entry_price: float, indicators: dict, bar: int) -> float:
-    """Calculate stop-loss price from strategy exit config."""
+def calc_stop_price(
+    strategy: Strategy,
+    entry_price: float,
+    indicators: dict,
+    bar: int,
+    short: bool | None = None,
+) -> float:
+    """Calculate stop-loss price from strategy exit config.
+    For shorts: stop is ABOVE entry. For longs: stop is BELOW entry.
+    `short` overrides trigger-based direction when bidirectional testing forces a direction.
+    """
     sl = strategy.exit.get("stop_loss", {})
     sl_type  = sl.get("type", "atr_multiple")
     sl_value = float(sl.get("value", 2.0))
+    if short is None:
+        short = is_short_trigger(strategy.entry.get("trigger", ""))
 
     if sl_type == "atr_multiple":
         atr_val = indicators["atr"][bar]
         if math.isnan(atr_val) or atr_val <= 0:
             atr_val = entry_price * 0.02  # fallback: 2% of price
-        return entry_price - sl_value * atr_val
+        return entry_price + sl_value * atr_val if short else entry_price - sl_value * atr_val
     else:  # fixed_pct
-        return entry_price * (1.0 - sl_value / 100.0)
+        return entry_price * (1.0 + sl_value / 100.0) if short else entry_price * (1.0 - sl_value / 100.0)
 
 
-def calc_take_profit_price(strategy: Strategy, entry_price: float, stop_price: float) -> float:
-    """Calculate take-profit price from strategy exit config."""
+def calc_take_profit_price(
+    strategy: Strategy,
+    entry_price: float,
+    stop_price: float,
+    short: bool | None = None,
+) -> float:
+    """Calculate take-profit price from strategy exit config.
+    For shorts: TP is BELOW entry. For longs: TP is ABOVE entry.
+    `short` overrides trigger-based direction when bidirectional testing forces a direction.
+    """
     tp = strategy.exit.get("take_profit", {})
     tp_type  = tp.get("type", "r_multiple")
     tp_value = float(tp.get("value", 2.0))
+    if short is None:
+        short = is_short_trigger(strategy.entry.get("trigger", ""))
 
-    risk = entry_price - stop_price
+    risk = abs(entry_price - stop_price)
     if tp_type == "r_multiple":
-        return entry_price + risk * tp_value
+        return entry_price - risk * tp_value if short else entry_price + risk * tp_value
     else:  # fixed_pct
-        return entry_price * (1.0 + tp_value / 100.0)
+        return entry_price * (1.0 - tp_value / 100.0) if short else entry_price * (1.0 + tp_value / 100.0)
