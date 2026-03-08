@@ -143,7 +143,7 @@ class StrategyBuilderAgent(WorkerAgent):
     # Pacing: after each batch, sleep long enough so the tokens consumed
     # by that call would have cleared the rolling 60-second window.
     # min_gap_seconds = tokens_used / (30_000 / 60) = tokens_used / 500
-    _RATE_LIMIT_TOKENS_PER_MIN: int = 30_000
+    _RATE_LIMIT_TOKENS_PER_MIN: int = 500_000
 
     def _handle(self, message: Message) -> Message | None:
         if message.type != MessageType.TASK:
