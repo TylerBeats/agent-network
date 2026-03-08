@@ -1,0 +1,231 @@
+{"id": 0, "ts": "21:16:14.170", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "21:16:14.171", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "21:16:14.172", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "21:16:14.173", "level": "SYSTEM", "src": "RELAY", "msg": "  Log file: C:\\Users\\Tyler\\agent-network\\zenith_logs.jsonl"}
+{"id": 4, "ts": "21:16:14.173", "level": "SYSTEM", "src": "RELAY", "msg": "  Relay port: 8081"}
+{"id": 5, "ts": "21:16:14.188", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 6, "ts": "21:16:14.715", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 BaseAgent._call_llm patched \u2014 token stats & timing active"}
+{"id": 7, "ts": "21:16:14.720", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 orchestrator.run_cycle patched \u2014 cycle timing active"}
+{"id": 8, "ts": "21:16:14.720", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 9, "ts": "21:16:14.720", "level": "SYSTEM", "src": "RELAY", "msg": "  Now run: python main.py"}
+{"id": 10, "ts": "21:16:14.721", "level": "SYSTEM", "src": "RELAY", "msg": "  Dashboard polls http://127.0.0.1:8081/logs"}
+{"id": 0, "ts": "23:14:35.802", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "23:14:35.803", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "23:14:35.803", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "23:14:35.804", "level": "SYSTEM", "src": "RELAY", "msg": "  Log file: C:\\Users\\Tyler\\agent-network\\zenith_logs.jsonl"}
+{"id": 4, "ts": "23:14:35.804", "level": "SYSTEM", "src": "RELAY", "msg": "  Relay port: 8081"}
+{"id": 5, "ts": "23:14:35.844", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 6, "ts": "23:14:36.307", "level": "WARN", "src": "RELAY", "msg": "Could not patch BaseAgent: No module named 'dotenv'"}
+{"id": 7, "ts": "23:14:36.356", "level": "WARN", "src": "RELAY", "msg": "Could not patch orchestrator: No module named 'dotenv'"}
+{"id": 8, "ts": "23:14:36.356", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 9, "ts": "23:14:36.356", "level": "SYSTEM", "src": "RELAY", "msg": "  Now run: python main.py"}
+{"id": 10, "ts": "23:14:36.356", "level": "SYSTEM", "src": "RELAY", "msg": "  Dashboard polls http://127.0.0.1:8081/logs"}
+{"id": 0, "ts": "23:26:16.613", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "23:26:16.613", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "23:26:16.613", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "23:26:16.614", "level": "SYSTEM", "src": "RELAY", "msg": "  Log file: C:\\Users\\Tyler\\agent-network\\zenith_logs.jsonl"}
+{"id": 4, "ts": "23:26:16.614", "level": "SYSTEM", "src": "RELAY", "msg": "  Relay port: 8081"}
+{"id": 5, "ts": "23:26:16.626", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 6, "ts": "23:26:17.148", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 BaseAgent._call_llm patched \u2014 token stats & timing active"}
+{"id": 7, "ts": "23:26:17.152", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 orchestrator.run_cycle patched \u2014 cycle timing active"}
+{"id": 8, "ts": "23:26:17.152", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 9, "ts": "23:26:17.153", "level": "SYSTEM", "src": "RELAY", "msg": "  Now run: python main.py"}
+{"id": 10, "ts": "23:26:17.153", "level": "SYSTEM", "src": "RELAY", "msg": "  Dashboard polls http://127.0.0.1:8081/logs"}
+{"id": 0, "ts": "23:27:12.696", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "23:27:12.696", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "23:27:12.696", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "23:27:12.696", "level": "SYSTEM", "src": "RELAY", "msg": "  Log file: C:\\Users\\Tyler\\agent-network\\zenith_logs.jsonl"}
+{"id": 4, "ts": "23:27:12.697", "level": "SYSTEM", "src": "RELAY", "msg": "  Relay port: 8081"}
+{"id": 5, "ts": "23:27:12.707", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 6, "ts": "23:27:13.224", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 BaseAgent._call_llm patched \u2014 token stats & timing active"}
+{"id": 7, "ts": "23:27:13.227", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 orchestrator.run_cycle patched \u2014 cycle timing active"}
+{"id": 8, "ts": "23:27:13.227", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 9, "ts": "23:27:13.228", "level": "SYSTEM", "src": "RELAY", "msg": "  Now run: python main.py"}
+{"id": 10, "ts": "23:27:13.228", "level": "SYSTEM", "src": "RELAY", "msg": "  Dashboard polls http://127.0.0.1:8081/logs"}
+{"id": 0, "ts": "23:28:43.815", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "23:28:43.815", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "23:28:43.815", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "23:28:43.816", "level": "SYSTEM", "src": "RELAY", "msg": "  Log file: C:\\Users\\Tyler\\agent-network\\zenith_logs.jsonl"}
+{"id": 4, "ts": "23:28:43.816", "level": "SYSTEM", "src": "RELAY", "msg": "  Relay port: 8081"}
+{"id": 5, "ts": "23:28:43.822", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 6, "ts": "23:28:44.344", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 BaseAgent._call_llm patched \u2014 token stats & timing active"}
+{"id": 7, "ts": "23:28:44.347", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 orchestrator.run_cycle patched \u2014 cycle timing active"}
+{"id": 8, "ts": "23:28:44.348", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 9, "ts": "23:28:44.348", "level": "SYSTEM", "src": "RELAY", "msg": "  Now run: python main.py"}
+{"id": 10, "ts": "23:28:44.348", "level": "SYSTEM", "src": "RELAY", "msg": "  Dashboard polls http://127.0.0.1:8081/logs"}
+{"id": 0, "ts": "23:31:19.496", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "23:31:19.496", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "23:31:19.496", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "23:31:19.496", "level": "SYSTEM", "src": "RELAY", "msg": "  Log file: C:\\Users\\Tyler\\agent-network\\zenith_logs.jsonl"}
+{"id": 4, "ts": "23:31:19.497", "level": "SYSTEM", "src": "RELAY", "msg": "  Relay port: 8081"}
+{"id": 5, "ts": "23:31:19.507", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 6, "ts": "23:31:20.024", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 BaseAgent._call_llm patched \u2014 token stats & timing active"}
+{"id": 7, "ts": "23:31:20.027", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 orchestrator.run_cycle patched \u2014 cycle timing active"}
+{"id": 8, "ts": "23:31:20.028", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 9, "ts": "23:31:20.028", "level": "SYSTEM", "src": "RELAY", "msg": "  Now run: python main.py"}
+{"id": 10, "ts": "23:31:20.028", "level": "SYSTEM", "src": "RELAY", "msg": "  Dashboard polls http://127.0.0.1:8081/logs"}
+{"id": 0, "ts": "23:42:10.508", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "23:42:10.508", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "23:42:10.509", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "23:42:10.509", "level": "SYSTEM", "src": "RELAY", "msg": "  Log file: C:\\Users\\Tyler\\agent-network\\zenith_logs.jsonl"}
+{"id": 4, "ts": "23:42:10.509", "level": "SYSTEM", "src": "RELAY", "msg": "  Relay port: 8081"}
+{"id": 5, "ts": "23:42:10.516", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 6, "ts": "23:42:11.038", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 BaseAgent._call_llm patched \u2014 token stats & timing active"}
+{"id": 7, "ts": "23:42:11.041", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 orchestrator.run_cycle patched \u2014 cycle timing active"}
+{"id": 8, "ts": "23:42:11.041", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 9, "ts": "23:42:11.042", "level": "SYSTEM", "src": "RELAY", "msg": "  Now run: python main.py"}
+{"id": 10, "ts": "23:42:11.042", "level": "SYSTEM", "src": "RELAY", "msg": "  Dashboard polls http://127.0.0.1:8081/logs"}
+{"id": 0, "ts": "00:02:49.670", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "00:02:49.671", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "00:02:49.671", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "00:02:49.672", "level": "SYSTEM", "src": "RELAY", "msg": "  Log file: C:\\Users\\Tyler\\agent-network\\zenith_logs.jsonl"}
+{"id": 4, "ts": "00:02:49.672", "level": "SYSTEM", "src": "RELAY", "msg": "  Relay port: 8081"}
+{"id": 5, "ts": "00:02:49.685", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 6, "ts": "00:02:50.175", "level": "WARN", "src": "RELAY", "msg": "Could not patch BaseAgent: No module named 'dotenv'"}
+{"id": 7, "ts": "00:02:50.194", "level": "WARN", "src": "RELAY", "msg": "Could not patch orchestrator: No module named 'dotenv'"}
+{"id": 8, "ts": "00:02:50.195", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 9, "ts": "00:02:50.195", "level": "SYSTEM", "src": "RELAY", "msg": "  Now run: python main.py"}
+{"id": 10, "ts": "00:02:50.195", "level": "SYSTEM", "src": "RELAY", "msg": "  Dashboard polls http://127.0.0.1:8081/logs"}
+{"id": 0, "ts": "00:23:25.871", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "00:23:25.872", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "00:23:25.872", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "00:23:25.872", "level": "SYSTEM", "src": "RELAY", "msg": "  Log file: C:\\Users\\Tyler\\agent-network\\zenith_logs.jsonl"}
+{"id": 4, "ts": "00:23:25.873", "level": "SYSTEM", "src": "RELAY", "msg": "  Relay port: 8081"}
+{"id": 5, "ts": "00:23:25.883", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 6, "ts": "00:23:26.375", "level": "WARN", "src": "RELAY", "msg": "Could not patch BaseAgent: No module named 'dotenv'"}
+{"id": 7, "ts": "00:23:26.393", "level": "WARN", "src": "RELAY", "msg": "Could not patch orchestrator: No module named 'dotenv'"}
+{"id": 8, "ts": "00:23:26.393", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 9, "ts": "00:23:26.393", "level": "SYSTEM", "src": "RELAY", "msg": "  Now run: python main.py"}
+{"id": 10, "ts": "00:23:26.393", "level": "SYSTEM", "src": "RELAY", "msg": "  Dashboard polls http://127.0.0.1:8081/logs"}
+{"id": 0, "ts": "00:43:33.833", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "00:43:33.833", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "00:43:33.834", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "00:43:33.834", "level": "SYSTEM", "src": "RELAY", "msg": "  Log file: C:\\Users\\Tyler\\agent-network\\zenith_logs.jsonl"}
+{"id": 4, "ts": "00:43:33.834", "level": "SYSTEM", "src": "RELAY", "msg": "  Relay port: 8081"}
+{"id": 5, "ts": "00:43:33.845", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 6, "ts": "00:43:34.361", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 BaseAgent._call_llm patched \u2014 token stats & timing active"}
+{"id": 7, "ts": "00:43:34.365", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 orchestrator.run_cycle patched \u2014 cycle timing active"}
+{"id": 8, "ts": "00:43:34.365", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 9, "ts": "00:43:34.366", "level": "SYSTEM", "src": "RELAY", "msg": "  Now run: python main.py"}
+{"id": 10, "ts": "00:43:34.366", "level": "SYSTEM", "src": "RELAY", "msg": "  Dashboard polls http://127.0.0.1:8081/logs"}
+{"id": 0, "ts": "01:06:03.025", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "01:06:03.025", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "01:06:03.026", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "01:06:03.036", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 4, "ts": "01:06:03.554", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 BaseAgent._call_llm patched \u2014 token stats & timing active"}
+{"id": 5, "ts": "01:06:03.557", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 orchestrator.run_cycle patched \u2014 cycle timing active"}
+{"id": 6, "ts": "01:06:03.558", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 7, "ts": "01:07:16", "level": "SYSTEM", "src": "ORCHESTRATOR", "msg": "INITIATING CYCLE #1 | ASSET: SPX500"}
+{"id": 8, "ts": "01:07:16", "level": "INFO", "src": "BUILDER", "msg": "Analyzing market regime...", "progress": 20}
+{"id": 9, "ts": "01:07:27", "level": "INFO", "src": "BUILDER", "msg": "Strategies generated: Here are **three mean-reversion trading strategies...", "progress": 100}
+{"id": 10, "ts": "01:07:27", "level": "ZENITH", "src": "BUILDER", "msg": "builder\u2192backtester"}
+{"id": 11, "ts": "01:07:27", "level": "INFO", "src": "BACKTESTER", "msg": "Running Monte Carlo simulations...", "progress": 50}
+{"id": 12, "ts": "01:07:30", "level": "INFO", "src": "BACKTESTER", "msg": "Backtester verification complete.", "progress": 100}
+{"id": 13, "ts": "01:07:30", "level": "ZENITH", "src": "BACKTESTER", "msg": "backtester\u2192trader"}
+{"id": 14, "ts": "01:07:30", "level": "INFO", "src": "TRADER", "msg": "Executing Dry-Run Order...", "progress": 100}
+{"id": 15, "ts": "01:07:30", "level": "ZENITH", "src": "TRADER", "msg": "trader\u2192coach"}
+{"id": 16, "ts": "01:07:30", "level": "INFO", "src": "COACH", "msg": "Updating weights for next cycle.", "progress": 100}
+{"id": 17, "ts": "01:07:30", "level": "TIMING", "src": "SYSTEM", "msg": "cycle complete"}
+{"id": 18, "ts": "01:07:56", "level": "SYSTEM", "src": "ORCHESTRATOR", "msg": "INITIATING CYCLE #1 | ASSET: SPX500"}
+{"id": 19, "ts": "01:07:56", "level": "INFO", "src": "BUILDER", "msg": "Analyzing market regime...", "progress": 20}
+{"id": 20, "ts": "01:08:06", "level": "INFO", "src": "BUILDER", "msg": "Strategies generated: Here are **three mean-reversion strategies** for t...", "progress": 100}
+{"id": 21, "ts": "01:08:06", "level": "ZENITH", "src": "BUILDER", "msg": "builder\u2192backtester"}
+{"id": 22, "ts": "01:08:06", "level": "INFO", "src": "BACKTESTER", "msg": "Running Monte Carlo simulations...", "progress": 50}
+{"id": 23, "ts": "01:08:09", "level": "INFO", "src": "BACKTESTER", "msg": "Backtester verification complete.", "progress": 100}
+{"id": 24, "ts": "01:08:09", "level": "ZENITH", "src": "BACKTESTER", "msg": "backtester\u2192trader"}
+{"id": 25, "ts": "01:08:09", "level": "INFO", "src": "TRADER", "msg": "Executing Dry-Run Order...", "progress": 100}
+{"id": 26, "ts": "01:08:09", "level": "ZENITH", "src": "TRADER", "msg": "trader\u2192coach"}
+{"id": 27, "ts": "01:08:09", "level": "INFO", "src": "COACH", "msg": "Updating weights for next cycle.", "progress": 100}
+{"id": 28, "ts": "01:08:09", "level": "TIMING", "src": "SYSTEM", "msg": "cycle complete"}
+{"id": 0, "ts": "01:23:54.574", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "01:23:54.574", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "01:23:54.575", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "01:23:54.581", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 4, "ts": "01:23:55.101", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 BaseAgent._call_llm patched \u2014 token stats & timing active"}
+{"id": 5, "ts": "01:23:55.104", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 orchestrator.run_cycle patched \u2014 cycle timing active"}
+{"id": 6, "ts": "01:23:55.105", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 7, "ts": "01:24:47", "level": "SYSTEM", "src": "ORCHESTRATOR", "msg": "INITIATING CYCLE #1 | ASSET: SPX500"}
+{"id": 8, "ts": "01:24:47", "level": "INFO", "src": "BUILDER", "msg": "Analyzing market regime...", "progress": 20}
+{"id": 9, "ts": "01:24:58", "level": "INFO", "src": "BUILDER", "msg": "Strategies generated: Here are **three mean-reversion strategies** for the S&P 500 (SPX500) using **Bollinger Bands (BB)**...", "progress": 100}
+{"id": 10, "ts": "01:24:58", "level": "ZENITH", "src": "BUILDER", "msg": "builder\u2192backtester"}
+{"id": 11, "ts": "01:24:58", "level": "TIMING", "src": "SYSTEM", "msg": "cycle complete"}
+{"id": 12, "ts": "01:25:30", "level": "SYSTEM", "src": "ORCHESTRATOR", "msg": "INITIATING CYCLE #1 | ASSET: SPX500"}
+{"id": 13, "ts": "01:25:30", "level": "INFO", "src": "BUILDER", "msg": "Analyzing market regime...", "progress": 20}
+{"id": 14, "ts": "01:25:40", "level": "INFO", "src": "BUILDER", "msg": "Strategies generated: Here are **three mean-reversion trading strategies** for the S&P 500 (SPX500) using **Bollinger Band...", "progress": 100}
+{"id": 15, "ts": "01:25:40", "level": "ZENITH", "src": "BUILDER", "msg": "builder\u2192backtester"}
+{"id": 16, "ts": "01:25:40", "level": "TIMING", "src": "SYSTEM", "msg": "cycle complete"}
+{"id": 0, "ts": "01:42:28.757", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "01:42:28.757", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "01:42:28.758", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "01:42:28.768", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 4, "ts": "01:42:29.285", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 BaseAgent._call_llm patched \u2014 token stats & timing active"}
+{"id": 5, "ts": "01:42:29.288", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 orchestrator.run_cycle patched \u2014 cycle timing active"}
+{"id": 6, "ts": "01:42:29.289", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 7, "ts": "01:44:23", "level": "SYSTEM", "src": "ORCHESTRATOR", "msg": "INITIATING CYCLE #1 | ASSET: SPX500"}
+{"id": 8, "ts": "01:44:23", "level": "INFO", "src": "COACH", "msg": "Analyzing winners_log for pattern biasing...", "progress": 10}
+{"id": 9, "ts": "01:44:23", "level": "INFO", "src": "COACH", "msg": "Guidance: Bias toward Channel | R:R 1.75-2.25"}
+{"id": 10, "ts": "01:44:23", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 1/5 (Trend)...", "progress": 20}
+{"id": 11, "ts": "01:45:34", "level": "INFO", "src": "BUILDER", "msg": "Batch 1 complete."}
+{"id": 12, "ts": "01:45:34", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 2/5 (Channel)...", "progress": 35}
+{"id": 13, "ts": "01:46:43", "level": "INFO", "src": "BUILDER", "msg": "Batch 2 complete."}
+{"id": 14, "ts": "01:46:43", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 3/5 (Momentum)...", "progress": 50}
+{"id": 15, "ts": "01:47:40", "level": "INFO", "src": "BUILDER", "msg": "Batch 3 complete."}
+{"id": 16, "ts": "01:47:40", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 4/5 (Volatility)...", "progress": 65}
+{"id": 17, "ts": "01:48:53", "level": "INFO", "src": "BUILDER", "msg": "Batch 4 complete."}
+{"id": 18, "ts": "01:48:53", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 5/5 (Flex)...", "progress": 80}
+{"id": 19, "ts": "01:50:05", "level": "INFO", "src": "BUILDER", "msg": "Batch 5 complete."}
+{"id": 20, "ts": "01:50:05", "level": "ZENITH", "src": "BUILDER", "msg": "100 strategies generated across 4 families."}
+{"id": 21, "ts": "01:50:05", "level": "INFO", "src": "BACKTESTER", "msg": "Running 80/20 IS-OOS Validation...", "progress": 85}
+{"id": 22, "ts": "01:50:05", "level": "INFO", "src": "BACKTESTER", "msg": "Applying v3.1 OOS Sharpe Veto..."}
+{"id": 23, "ts": "01:50:05", "level": "TIMING", "src": "SYSTEM", "msg": "Strategies evaluated. Cycle complete."}
+{"id": 24, "ts": "01:52:50", "level": "SYSTEM", "src": "ORCHESTRATOR", "msg": "INITIATING CYCLE #1 | ASSET: SPX500"}
+{"id": 25, "ts": "01:52:50", "level": "INFO", "src": "COACH", "msg": "Analyzing winners_log for pattern biasing...", "progress": 10}
+{"id": 26, "ts": "01:52:50", "level": "INFO", "src": "COACH", "msg": "Guidance: Bias toward Channel | R:R 1.75-2.25"}
+{"id": 27, "ts": "01:52:50", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 1/5 (Trend)...", "progress": 20}
+{"id": 28, "ts": "01:54:00", "level": "INFO", "src": "BUILDER", "msg": "Batch 1 complete."}
+{"id": 29, "ts": "01:54:00", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 2/5 (Channel)...", "progress": 35}
+{"id": 30, "ts": "01:55:10", "level": "INFO", "src": "BUILDER", "msg": "Batch 2 complete."}
+{"id": 31, "ts": "01:55:10", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 3/5 (Momentum)...", "progress": 50}
+{"id": 32, "ts": "01:56:09", "level": "INFO", "src": "BUILDER", "msg": "Batch 3 complete."}
+{"id": 33, "ts": "01:56:09", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 4/5 (Volatility)...", "progress": 65}
+{"id": 34, "ts": "01:57:22", "level": "INFO", "src": "BUILDER", "msg": "Batch 4 complete."}
+{"id": 35, "ts": "01:57:22", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 5/5 (Flex)...", "progress": 80}
+{"id": 36, "ts": "01:58:35", "level": "INFO", "src": "BUILDER", "msg": "Batch 5 complete."}
+{"id": 37, "ts": "01:58:35", "level": "ZENITH", "src": "BUILDER", "msg": "100 strategies generated across 4 families."}
+{"id": 38, "ts": "01:58:35", "level": "INFO", "src": "BACKTESTER", "msg": "Running 80/20 IS-OOS Validation...", "progress": 85}
+{"id": 39, "ts": "01:58:35", "level": "INFO", "src": "BACKTESTER", "msg": "Applying v3.1 OOS Sharpe Veto..."}
+{"id": 40, "ts": "01:58:35", "level": "TIMING", "src": "SYSTEM", "msg": "Strategies evaluated. Cycle complete."}
+{"id": 41, "ts": "01:59:58", "level": "SYSTEM", "src": "ORCHESTRATOR", "msg": "INITIATING CYCLE #1 | ASSET: SPX500"}
+{"id": 42, "ts": "01:59:58", "level": "INFO", "src": "COACH", "msg": "Analyzing winners_log for pattern biasing...", "progress": 10}
+{"id": 43, "ts": "01:59:58", "level": "INFO", "src": "COACH", "msg": "Guidance: Bias toward Channel | R:R 1.75-2.25"}
+{"id": 44, "ts": "01:59:58", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 1/5 (Trend)...", "progress": 20}
+{"id": 45, "ts": "03:01:07", "level": "INFO", "src": "BUILDER", "msg": "Batch 1 complete."}
+{"id": 46, "ts": "03:01:07", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 2/5 (Channel)...", "progress": 35}
+{"id": 47, "ts": "03:02:20", "level": "INFO", "src": "BUILDER", "msg": "Batch 2 complete."}
+{"id": 48, "ts": "03:02:20", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 3/5 (Momentum)...", "progress": 50}
+{"id": 49, "ts": "03:03:18", "level": "INFO", "src": "BUILDER", "msg": "Batch 3 complete."}
+{"id": 50, "ts": "03:03:18", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 4/5 (Volatility)...", "progress": 65}
+{"id": 0, "ts": "03:04:29.290", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 1, "ts": "03:04:29.291", "level": "SYSTEM", "src": "RELAY", "msg": "  Zenith Log Relay starting up"}
+{"id": 2, "ts": "03:04:29.291", "level": "SYSTEM", "src": "RELAY", "msg": "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"}
+{"id": 3, "ts": "03:04:29.302", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 Log relay server listening on http://127.0.0.1:8081"}
+{"id": 4, "ts": "03:04:29.819", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 BaseAgent._call_llm patched \u2014 token stats & timing active"}
+{"id": 5, "ts": "03:04:29.822", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 orchestrator.run_cycle patched \u2014 cycle timing active"}
+{"id": 6, "ts": "03:04:29.822", "level": "SYSTEM", "src": "RELAY", "msg": "\u2713 All patches applied \u2014 ready"}
+{"id": 7, "ts": "03:05:57", "level": "SYSTEM", "src": "ORCHESTRATOR", "msg": "INITIATING CYCLE #1 | ASSET: SPX500"}
+{"id": 8, "ts": "03:05:57", "level": "INFO", "src": "COACH", "msg": "Analyzing winners_log for pattern biasing...", "progress": 10}
+{"id": 9, "ts": "03:05:57", "level": "INFO", "src": "COACH", "msg": "Guidance: Bias toward Channel | R:R 1.75-2.25"}
+{"id": 10, "ts": "03:05:57", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 1/5 (Trend)...", "progress": 20}
+{"id": 11, "ts": "03:06:54", "level": "INFO", "src": "BUILDER", "msg": "Batch 1 complete."}
+{"id": 12, "ts": "03:06:54", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 2/5 (Channel)...", "progress": 35}
+{"id": 13, "ts": "03:07:51", "level": "INFO", "src": "BUILDER", "msg": "Batch 2 complete."}
+{"id": 14, "ts": "03:07:51", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 3/5 (Momentum)...", "progress": 50}
+{"id": 15, "ts": "03:08:38", "level": "INFO", "src": "BUILDER", "msg": "Batch 3 complete."}
+{"id": 16, "ts": "03:08:38", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 4/5 (Volatility)...", "progress": 65}
+{"id": 17, "ts": "03:09:35", "level": "INFO", "src": "BUILDER", "msg": "Batch 4 complete."}
+{"id": 18, "ts": "03:09:35", "level": "INFO", "src": "BUILDER", "msg": "Generating Batch 5/5 (Flex)...", "progress": 80}
+{"id": 19, "ts": "03:10:33", "level": "INFO", "src": "BUILDER", "msg": "Batch 5 complete."}
+{"id": 20, "ts": "03:10:33", "level": "ZENITH", "src": "BUILDER", "msg": "100 strategies generated across 4 families."}
+{"id": 21, "ts": "03:10:33", "level": "INFO", "src": "BACKTESTER", "msg": "Running 80/20 IS-OOS Validation...", "progress": 85}
+{"id": 22, "ts": "03:10:33", "level": "INFO", "src": "BACKTESTER", "msg": "Applying v3.1 OOS Sharpe Veto..."}
+{"id": 23, "ts": "03:10:33", "level": "TIMING", "src": "SYSTEM", "msg": "Strategies evaluated. Cycle complete."}

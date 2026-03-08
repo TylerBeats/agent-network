@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ALGO-MESH V3 | ZENITH COMMAND</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; background: #060d1a; color: #cbd5e1; font-family: 'IBM Plex Mono', monospace; }
+        .header { padding: 12px 24px; border-bottom: 1px solid #0f2040; display: flex; justify-content: space-between; align-items: center; background: #04091a; position: sticky; top: 0; z-index: 100; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .run-btn { padding: 8px 20px; border: 1px solid #10b981; background: #10b98110; color: #10b981; cursor: pointer; font-family: 'Bebas Neue'; letter-spacing: 2px; transition: 0.2s; }
+        .run-btn:disabled { border-color: #334155; color: #334155; cursor: not-allowed; }
+        .agent-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; }
+        .agent-card { background: #070f1e; border: 1px solid #0f2040; padding: 15px; border-radius: 4px; }
+        .log-box { background: #040c19; border: 1px solid #0f2040; margin: 0 20px 20px 20px; padding: 15px; height: 35vh; overflow-y: auto; font-size: 11px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const ZENITH_BASE = "http://127.0.0.1:8000";
+        const RELAY_BASE  = "http://127.0.0.1:8081";
+
+        function App() {
+            const [logs, setLogs] = useState([]);
+            const [isRunning, setIsRunning] = useState(false);
+            const [lastId, setLastId] = useState(-1);
+            const [zenithOnline, setZenithOnline] = useState(false);
+            const [relayOnline, setRelayOnline] = useState(false);
+            const logEndRef = useRef(null);
+
+            useEffect(() => {
+                const checkHealth = async () => {
+                    try {
+                        const z = await fetch(`${ZENITH_BASE}/health`);
+                        setZenithOnline(z.ok);
+                        const r = await fetch(`${RELAY_BASE}/status`);
+                        setRelayOnline(r.ok);
+                    } catch (err) { // FIXED: Added (err) to catch
+                        setZenithOnline(false); 
+                        setRelayOnline(false);
+                    }
+                };
+                checkHealth();
+                const timer = setInterval(checkHealth, 5000);
+                return () => clearInterval(timer);
+            }, []);
+
+            useEffect(() => {
+                const pollLogs = async () => {
+                    try {
+                        const response = await fetch(`${RELAY_BASE}/logs?since=${lastId}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.length > 0) {
+                                setLogs(prev => [...prev.slice(-500), ...data]);
+                                setLastId(data[data.length - 1].id);
+                                if (data.some(l => l.msg.toLowerCase().includes("cycle complete"))) {
+                                    setIsRunning(false);
+                                }
+                            }
+                        }
+                    } catch (err) { /* Silent fail */ }
+                };
+                const t = setInterval(pollLogs, 1500);
+                return () => clearInterval(t);
+            }, [lastId]);
+
+            // FIXED: Corrected the scrolling effect syntax
+            useEffect(() => {
+                if (logEndRef.current) {
+                    logEndRef.current.scrollIntoView({ behavior: "smooth" });
+                }
+            }, [logs]);
+
+            const runCycle = async () => {
+                setIsRunning(true);
+                try {
+                    await fetch(`${ZENITH_BASE}/run`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ cycle: 1, asset: "SPX500" })
+                    });
+                } catch (err) { 
+                    setIsRunning(false); 
+                }
+            };
+
+            return (
+                <div>
+                    <div className="header">
+                        <div style={{fontFamily: 'Bebas Neue', fontSize: '24px', color: '#f59e0b', letterSpacing: '3px'}}>
+                            ALGO<span style={{color: '#06b6d4'}}>MESH</span> V3
+                        </div>
+                        <div style={{display: 'flex', gap: '20px'}}>
+                            <div>
+                                <span className="status-dot" style={{background: zenithOnline ? '#10b981' : '#ef4444'}}></span>
+                                <span style={{fontSize: '10px'}}>CORE :8000</span>
+                            </div>
+                            <div>
+                                <span className="status-dot" style={{background: relayOnline ? '#10b981' : '#ef4444'}}></span>
+                                <span style={{fontSize: '10px'}}>RELAY :8081</span>
+                            </div>
+                        </div>
+                        <button className="run-btn" onClick={runCycle} disabled={isRunning || !zenithOnline}>
+                            {isRunning ? "CYCLE ACTIVE" : "▶ RUN TRADING CYCLE"}
+                        </button>
+                    </div>
+
+                    <div className="agent-grid">
+                        {['BUILDER', 'BACKTESTER', 'TRADER', 'COACH'].map(agent => (
+                            <div key={agent} className="agent-card" style={{borderLeft: `4px solid #1e3a5f`}}>
+                                <div style={{fontWeight: 'bold', fontSize: '12px', color: '#06b6d4'}}>{agent}</div>
+                                <div style={{fontSize: '10px', marginTop: '10px', color: '#64748b', height: '45px', overflow: 'hidden'}}>
+                                    {logs.filter(l => l.src === agent).slice(-2).map((l, i) => (
+                                        <div key={i}>› {l.msg}</div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="log-box">
+                        {logs.length === 0 ? (
+                            <div style={{color: '#1e3a5f', textAlign: 'center', paddingTop: '40px'}}>System Standby...</div>
+                        ) : logs.map(l => (
+                            <div key={l.id} style={{marginBottom: '3px', borderBottom: '1px solid #0a1628', paddingBottom: '2px'}}>
+                                <span style={{color: '#1e3a5f'}}>[{l.ts}]</span> 
+                                <span style={{color: '#06b6d4', marginLeft: '10px', fontWeight: 'bold'}}>{l.src}:</span> 
+                                <span style={{marginLeft: '10px'}}>{l.msg}</span>
+                            </div>
+                        ))}
+                        <div ref={logEndRef} />
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
